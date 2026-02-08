@@ -1,13 +1,44 @@
-import { ScrollView, Text, View, TouchableOpacity, Switch } from "react-native";
+import { ScrollView, Text, View, TouchableOpacity, Switch, Alert } from "react-native";
 import { ScreenContainer } from "@/components/screen-container";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useColors } from "@/hooks/use-colors";
 import { useState } from "react";
+import { useAuth } from "@/lib/auth-context";
+import { useRouter } from "expo-router";
 
 export default function ProfileScreen() {
   const colors = useColors();
+  const router = useRouter();
+  const { user, logout, upgradeToPremium } = useAuth();
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [darkMode, setDarkMode] = useState(false);
+  const [isUpgrading, setIsUpgrading] = useState(false);
+
+  const handleLogout = () => {
+    Alert.alert("Sair da Conta", "Tem certeza que deseja sair?", [
+      { text: "Cancelar", style: "cancel" },
+      {
+        text: "Sair",
+        style: "destructive",
+        onPress: async () => {
+          await logout();
+          router.replace("/auth/login");
+        },
+      },
+    ]);
+  };
+
+  const handleUpgrade = async () => {
+    setIsUpgrading(true);
+    try {
+      await upgradeToPremium();
+      Alert.alert("Sucesso", "Você foi atualizado para o plano Premium!");
+    } catch (error) {
+      Alert.alert("Erro", "Não foi possível fazer o upgrade. Tente novamente.");
+    } finally {
+      setIsUpgrading(false);
+    }
+  };
 
   const MenuSection = ({
     title,
@@ -59,34 +90,41 @@ export default function ProfileScreen() {
           >
             <IconSymbol name="person.fill" size={32} color="#FFFFFF" />
           </View>
-          <Text className="text-lg font-semibold text-foreground">João Silva</Text>
-          <Text className="text-sm text-muted mt-1">joao.silva@email.com</Text>
+          <Text className="text-lg font-semibold text-foreground">{user?.name || "Usuário"}</Text>
+          <Text className="text-sm text-muted mt-1">{user?.email || "email@example.com"}</Text>
 
           <View className="flex-row gap-2 mt-4">
             <View
               style={{
-                backgroundColor: colors.primary,
+                backgroundColor: user?.plan === "premium" ? colors.warning : colors.primary,
               }}
               className="px-4 py-2 rounded-full"
             >
-              <Text className="text-white text-xs font-semibold">Plano Gratuito</Text>
+              <Text className="text-white text-xs font-semibold">
+                Plano {user?.plan === "premium" ? "Premium" : "Gratuito"}
+              </Text>
             </View>
           </View>
         </View>
 
         {/* Upgrade Card */}
-        <TouchableOpacity
-          style={{
-            backgroundColor: colors.primary,
-          }}
-          className="rounded-lg p-4 mb-6 flex-row items-center justify-between"
-        >
-          <View>
-            <Text className="text-white font-semibold">Upgrade para Premium</Text>
-            <Text className="text-white text-xs mt-1 opacity-90">Acesso ilimitado a filtros avançados</Text>
-          </View>
-          <IconSymbol name="chevron.right" size={20} color="#FFFFFF" />
-        </TouchableOpacity>
+        {user?.plan !== "premium" && (
+          <TouchableOpacity
+            onPress={handleUpgrade}
+            disabled={isUpgrading}
+            style={{
+              backgroundColor: colors.primary,
+              opacity: isUpgrading ? 0.6 : 1,
+            }}
+            className="rounded-lg p-4 mb-6 flex-row items-center justify-between"
+          >
+            <View>
+              <Text className="text-white font-semibold">Upgrade para Premium</Text>
+              <Text className="text-white text-xs mt-1 opacity-90">Acesso ilimitado a filtros avançados</Text>
+            </View>
+            <IconSymbol name="chevron.right" size={20} color="#FFFFFF" />
+          </TouchableOpacity>
+        )}
 
         {/* Notifications Settings */}
         <MenuSection
@@ -168,6 +206,7 @@ export default function ProfileScreen() {
 
         {/* Logout Button */}
         <TouchableOpacity
+          onPress={handleLogout}
           style={{
             backgroundColor: colors.error,
           }}

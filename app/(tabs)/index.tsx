@@ -5,6 +5,7 @@ import { useColors } from "@/hooks/use-colors";
 import { useState, useEffect } from "react";
 import { djenApi, type DJENPublication } from "@/lib/djen-api";
 import { searchHistoryStorage } from "@/lib/storage";
+import { useRouter } from "expo-router";
 
 type ProcessResult = DJENPublication & {
   lastUpdate: string;
@@ -13,6 +14,7 @@ type ProcessResult = DJENPublication & {
 
 export default function SearchScreen() {
   const colors = useColors();
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState("todos");
   const [results, setResults] = useState<ProcessResult[]>([]);
@@ -74,6 +76,7 @@ export default function SearchScreen() {
 
   const ProcessCard = ({ item }: { item: ProcessResult }) => (
     <TouchableOpacity
+      onPress={() => router.push({ pathname: "/publication-detail", params: { id: item.id } })}
       style={{
         backgroundColor: colors.surface,
         borderColor: colors.border,

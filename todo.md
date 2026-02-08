@@ -134,3 +134,32 @@
 - [ ] Criar changelog
 - [ ] Preparar assets para App Store/Play Store
 - [ ] Submeter para review
+
+## Implementações Solicitadas (Fase 2)
+
+### Notificações Push
+- [x] Configurar expo-notifications com permissões
+- [x] Criar serviço de gerenciamento de notificações
+- [x] Implementar alertas para novas publicações em processos monitorados
+- [x] Adicionar configuração de horários de notificação
+- [ ] Testar notificações em iOS e Android
+
+### Tela de Detalhes da Publicação
+- [x] Criar stack navigation para detalhes
+- [x] Implementar layout de detalhes com header
+- [x] Adicionar destaque automático de datas (amarelo)
+- [ ] Adicionar destaque automático de prazos (vermelho)
+- [ ] Adicionar destaque automático de partes (azul)
+- [x] Adicionar destaque automático de expressões jurídicas (negrito)
+- [x] Implementar botões de ação (Favoritar, Compartilhar, Copiar)
+- [ ] Adicionar histórico de publicações do processo
+
+### Autenticação e Plano Premium
+- [x] Criar tela de login/signup
+- [x] Implementar autenticação com email/senha
+- [x] Criar contexto de usuário autenticado
+- [x] Implementar persistência de sessão
+- [x] Criar sistema de plano (Gratuito/Premium)
+- [ ] Implementar restrições de funcionalidades por plano
+- [x] Adicionar fluxo de upgrade para Premium
+- [ ] Criar tela de recuperação de senha
