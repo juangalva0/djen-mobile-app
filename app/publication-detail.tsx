@@ -186,14 +186,14 @@ export default function PublicationDetailScreen() {
           {/* Full Text with Highlights */}
           <View className="mb-6 pb-6" style={{ borderBottomColor: colors.border, borderBottomWidth: 1 }}>
             <Text className="text-sm font-semibold text-muted uppercase mb-3">Texto Completo</Text>
-            <HighlightedText text={publication.fullText} />
+            <HighlightedText text={publication.fullText || ""} />
           </View>
 
           {/* Judges */}
-          {publication.judges.length > 0 && (
+          {(publication.judges || []).length > 0 && (
             <View className="mb-6">
               <Text className="text-sm font-semibold text-muted uppercase mb-2">Magistrados</Text>
-              {publication.judges.map((judge, index) => (
+              {(publication.judges || []).map((judge, index) => (
                 <Text key={index} className="text-sm text-foreground mb-1">
                   {judge}
                 </Text>
@@ -202,10 +202,10 @@ export default function PublicationDetailScreen() {
           )}
 
           {/* Lawyers */}
-          {publication.lawyers.length > 0 && (
+          {(publication.lawyers || []).length > 0 && (
             <View className="mb-6">
               <Text className="text-sm font-semibold text-muted uppercase mb-2">Advogados</Text>
-              {publication.lawyers.map((lawyer, index) => (
+              {(publication.lawyers || []).map((lawyer, index) => (
                 <Text key={index} className="text-sm text-foreground mb-1">
                   {lawyer}
                 </Text>

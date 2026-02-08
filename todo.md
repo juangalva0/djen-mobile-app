@@ -137,6 +137,19 @@
 
 ## Implementações Solicitadas (Fase 2)
 
+### Integração com API Real do DJEN
+- [x] Pesquisar e documentar API DJEN do PJe
+- [x] Criar cliente HTTP para requisições à API real
+- [x] Implementar busca por número de processo
+- [x] Implementar busca por partes/advogado
+- [x] Implementar busca por palavra-chave
+- [x] Implementar filtros por tribunal
+- [x] Adicionar tratamento de erros e retry
+- [ ] Testar integração com dados reais
+- [x] Manter fallback com dados mock para desenvolvimento
+
+## Implementações Solicitadas (Fase 2 - Anterior)
+
 ### Notificações Push
 - [x] Configurar expo-notifications com permissões
 - [x] Criar serviço de gerenciamento de notificações
