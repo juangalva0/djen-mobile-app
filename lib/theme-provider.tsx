@@ -1,19 +1,50 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { Appearance, View, useColorScheme as useSystemColorScheme } from "react-native";
 import { colorScheme as nativewindColorScheme, vars } from "nativewind";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import { SchemeColors, type ColorScheme } from "@/constants/theme";
 
 type ThemeContextValue = {
   colorScheme: ColorScheme;
   setColorScheme: (scheme: ColorScheme) => void;
+  fontSize: "small" | "normal" | "large";
+  setFontSize: (size: "small" | "normal" | "large") => void;
 };
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
+const THEME_STORAGE_KEY = "djen_theme";
+const FONT_SIZE_STORAGE_KEY = "djen_font_size";
+
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const systemScheme = useSystemColorScheme() ?? "light";
   const [colorScheme, setColorSchemeState] = useState<ColorScheme>(systemScheme);
+  const [fontSize, setFontSizeState] = useState<"small" | "normal" | "large">("normal");
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Carregar preferências salvas ao iniciar
+  useEffect(() => {
+    const loadPreferences = async () => {
+      try {
+        const savedTheme = await AsyncStorage.getItem(THEME_STORAGE_KEY);
+        const savedFontSize = await AsyncStorage.getItem(FONT_SIZE_STORAGE_KEY);
+
+        if (savedTheme) {
+          setColorSchemeState(savedTheme as ColorScheme);
+        }
+        if (savedFontSize) {
+          setFontSizeState(savedFontSize as "small" | "normal" | "large");
+        }
+      } catch (error) {
+        console.error("Erro ao carregar preferências de tema:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadPreferences();
+  }, []);
 
   const applyScheme = useCallback((scheme: ColorScheme) => {
     nativewindColorScheme.set(scheme);
@@ -29,14 +60,33 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  const setColorScheme = useCallback((scheme: ColorScheme) => {
-    setColorSchemeState(scheme);
-    applyScheme(scheme);
-  }, [applyScheme]);
+  const setColorScheme = useCallback(
+    async (scheme: ColorScheme) => {
+      setColorSchemeState(scheme);
+      applyScheme(scheme);
+      try {
+        await AsyncStorage.setItem(THEME_STORAGE_KEY, scheme);
+      } catch (error) {
+        console.error("Erro ao salvar tema:", error);
+      }
+    },
+    [applyScheme]
+  );
+
+  const setFontSize = useCallback(async (size: "small" | "normal" | "large") => {
+    setFontSizeState(size);
+    try {
+      await AsyncStorage.setItem(FONT_SIZE_STORAGE_KEY, size);
+    } catch (error) {
+      console.error("Erro ao salvar tamanho de fonte:", error);
+    }
+  }, []);
 
   useEffect(() => {
-    applyScheme(colorScheme);
-  }, [applyScheme, colorScheme]);
+    if (!isLoading) {
+      applyScheme(colorScheme);
+    }
+  }, [applyScheme, colorScheme, isLoading]);
 
   const themeVariables = useMemo(
     () =>
@@ -51,17 +101,22 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         "color-warning": SchemeColors[colorScheme].warning,
         "color-error": SchemeColors[colorScheme].error,
       }),
-    [colorScheme],
+    [colorScheme]
   );
 
   const value = useMemo(
     () => ({
       colorScheme,
       setColorScheme,
+      fontSize,
+      setFontSize,
     }),
-    [colorScheme, setColorScheme],
+    [colorScheme, setColorScheme, fontSize, setFontSize]
   );
-  console.log(value, themeVariables)
+
+  if (isLoading) {
+    return <View style={{ flex: 1, backgroundColor: SchemeColors[colorScheme].background }} />;
+  }
 
   return (
     <ThemeContext.Provider value={value}>

@@ -2,6 +2,7 @@ import { ScrollView, Text, View, TouchableOpacity, Alert } from "react-native";
 import { ScreenContainer } from "@/components/screen-container";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useColors } from "@/hooks/use-colors";
+import { useThemeSettings } from "@/hooks/use-theme-settings";
 import { useState, useEffect } from "react";
 import { useRouter } from "expo-router";
 import { userPreferencesService } from "@/lib/user-preferences";
@@ -9,23 +10,17 @@ import { userPreferencesService } from "@/lib/user-preferences";
 export default function AppearanceSettingsScreen() {
   const colors = useColors();
   const router = useRouter();
+  const { theme: currentTheme, setTheme: setGlobalTheme, fontSize: currentFontSize, setFontSize: setGlobalFontSize } = useThemeSettings();
 
-  const [theme, setTheme] = useState<"light" | "dark" | "auto">("auto");
-  const [fontSize, setFontSize] = useState<"small" | "normal" | "large">("normal");
+  const [theme, setTheme] = useState<"light" | "dark" | "auto">(currentTheme as "light" | "dark" | "auto");
+  const [fontSize, setFontSize] = useState<"small" | "normal" | "large">(currentFontSize);
 
   useEffect(() => {
-    loadPreferences();
-  }, []);
+    setTheme(currentTheme as "light" | "dark" | "auto");
+    setFontSize(currentFontSize);
+  }, [currentTheme, currentFontSize]);
 
-  const loadPreferences = async () => {
-    try {
-      const prefs = await userPreferencesService.getPreferences();
-      setTheme(prefs.theme);
-      setFontSize(prefs.fontSize);
-    } catch (error) {
-      console.error("Erro ao carregar preferências:", error);
-    }
-  };
+
 
   const savePreferences = async () => {
     try {
@@ -33,6 +28,9 @@ export default function AppearanceSettingsScreen() {
         theme,
         fontSize,
       });
+      // Aplicar tema globalmente
+      await setGlobalTheme(theme as any);
+      await setGlobalFontSize(fontSize);
       Alert.alert("Sucesso", "Configurações de aparência salvas!");
       router.back();
     } catch (error) {

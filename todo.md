@@ -221,3 +221,7 @@
 - [ ] Adicionar opção de exportar dados
 - [ ] Criar opção de deletar conta
 - [ ] Backup automático de dados
+
+
+## Bugs Reportados
+- [x] Tema e fonte não estão funcionando nas configurações de aparência
