@@ -9,6 +9,9 @@ export interface User {
   name: string;
   plan: UserPlan;
   createdAt: string;
+  phone?: string;
+  profession?: string;
+  oabNumber?: string;
 }
 
 export interface AuthContextType {
@@ -19,7 +22,7 @@ export interface AuthContextType {
   signup: (email: string, password: string, name: string) => Promise<void>;
   logout: () => Promise<void>;
   upgradeToPremium: () => Promise<void>;
-  updateProfile: (name: string) => Promise<void>;
+  updateProfile: (data: Partial<User>) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -133,12 +136,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const updateProfile = async (name: string) => {
+  const updateProfile = async (data: Partial<User>) => {
     if (!user) throw new Error("Usuário não autenticado");
 
     setIsLoading(true);
     try {
-      const updatedUser = { ...user, name };
+      const updatedUser = { ...user, ...data };
       await AsyncStorage.setItem(USER_STORAGE_KEY, JSON.stringify(updatedUser));
       setUser(updatedUser);
     } catch (error) {

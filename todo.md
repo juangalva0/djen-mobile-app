@@ -176,3 +176,48 @@
 - [ ] Implementar restrições de funcionalidades por plano
 - [x] Adicionar fluxo de upgrade para Premium
 - [ ] Criar tela de recuperação de senha
+
+## Melhorias na Tela de Perfil (Fase 3)
+
+### Edição de Perfil
+- [x] Criar tela de edição de perfil (nome, email, foto)
+- [ ] Implementar upload de foto de perfil
+- [x] Validar campos de entrada
+- [x] Salvar alterações no AsyncStorage e backend
+
+### Gerenciamento de Notificações
+- [x] Criar tela detalhada de notificações
+- [x] Implementar toggle por tipo de notificação
+- [x] Adicionar horários de silêncio (início e fim)
+- [x] Configurar som e vibração
+- [ ] Histórico de notificações recentes
+
+### Preferências de Tema
+- [x] Implementar seletor de tema (Light, Dark, Auto)
+- [x] Adicionar controle de tamanho de fonte (pequeno, normal, grande)
+- [x] Salvar preferências no AsyncStorage
+- [ ] Aplicar tema globalmente
+
+### Segurança e Autenticação
+- [x] Criar tela de alteração de senha
+- [x] Implementar validação de força de senha
+- [x] Adicionar autenticação biométrica (Face ID/Touch ID)
+- [ ] Criar tela de recuperação de senha
+
+### Informações Legais
+- [x] Criar tela de Política de Privacidade
+- [x] Criar tela de Termos de Uso
+- [x] Criar tela "Sobre o App" com versão e changelog
+- [x] Adicionar links para contato/suporte
+
+### Gerenciamento de Assinatura
+- [ ] Mostrar data de renovação do Premium
+- [ ] Implementar cancelamento de assinatura
+- [ ] Histórico de pagamentos
+- [ ] Opção de mudar método de pagamento
+
+### Dados e Sincronização
+- [ ] Implementar sincronização de dados com backend
+- [ ] Adicionar opção de exportar dados
+- [ ] Criar opção de deletar conta
+- [ ] Backup automático de dados

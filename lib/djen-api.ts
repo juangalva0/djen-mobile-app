@@ -44,45 +44,7 @@ class DJENApiService {
   private retryDelay = 1000; // ms
 
   // Dados mock para fallback quando API não está disponível
-  private mockData: DJENPublication[] = [
-    {
-      id: "pub-1",
-      number: "0000001-23.2024.8.26.0100",
-      court: "TJ-SP",
-      date: "2024-02-05",
-      type: "Sentença",
-      summary: "Sentença condenatória em ação de indenização por dano moral. Intime-se as partes. Prazo de 15 dias para recurso.",
-      fullText:
-        "SENTENÇA\n\nVistos, etc.\n\nTrata-se de ação de indenização por dano moral ajuizada por João Silva contra Maria Santos.\n\nA prova dos autos demonstra que o réu agiu com culpa, causando dano moral ao autor.\n\nPor todo o exposto, CONDENO o réu ao pagamento de R$ 10.000,00 (dez mil reais) a título de indenização por dano moral.\n\nIntime-se. Prazo de 15 dias para interposição de recurso.",
-      parties: ["João Silva", "Maria Santos"],
-      judges: ["Juiz de Direito: Dr. Carlos Alberto Silva"],
-      lawyers: ["OAB/SP 123456", "OAB/SP 654321"],
-    },
-    {
-      id: "pub-2",
-      number: "0000002-45.2024.8.26.0100",
-      court: "TJ-SP",
-      date: "2024-02-03",
-      type: "Despacho",
-      summary: "Despacho ordenando a citação do réu. Prazo de 20 dias para resposta.",
-      fullText: "DESPACHO\n\nDefiro o pedido de citação do réu via postal. Prazo de 20 dias para apresentação de resposta.",
-      parties: ["Empresa XYZ LTDA", "Banco ABC"],
-      judges: ["Juiz de Direito: Dra. Ana Paula Costa"],
-      lawyers: ["OAB/SP 111111", "OAB/SP 222222"],
-    },
-    {
-      id: "pub-3",
-      number: "0000003-67.2024.8.26.0100",
-      court: "TJ-SP",
-      date: "2024-02-01",
-      type: "Acórdão",
-      summary: "Acórdão que mantém a sentença de primeira instância. Unânime.",
-      fullText: "ACÓRDÃO\n\nVoto do Relator: Mantém-se a sentença de primeira instância pelos seus próprios fundamentos.",
-      parties: ["Condomínio Residencial", "Proprietário"],
-      judges: ["Desembargador: Dr. Roberto Silva", "Desembargador: Dra. Fernanda Costa"],
-      lawyers: ["OAB/SP 333333", "OAB/SP 444444"],
-    },
-  ];
+  private mockData: DJENPublication[] = [];
 
   constructor() {
     this.client = axios.create({
@@ -150,49 +112,8 @@ class DJENApiService {
    * Busca em dados mock (fallback)
    */
   private searchMock(params: SearchParams): DJENPublication[] {
-    let results = [...this.mockData];
-
-    if (params.processNumber) {
-      results = results.filter((p) => p.number.includes(params.processNumber!));
-    }
-
-    if (params.query) {
-      const query = params.query.toLowerCase();
-      results = results.filter(
-        (p) =>
-          (p.summary?.toLowerCase().includes(query) || false) ||
-          (p.fullText?.toLowerCase().includes(query) || false) ||
-          p.parties.some((party) => party.toLowerCase().includes(query))
-      );
-    }
-
-    if (params.tribunal) {
-      results = results.filter((p) => p.court === params.tribunal);
-    }
-
-    if (params.type) {
-      results = results.filter((p) => p.type === params.type);
-    }
-
-    if (params.parties) {
-      results = results.filter((p) =>
-        p.parties.some((party) => party.toLowerCase().includes(params.parties!.toLowerCase()))
-      );
-    }
-
-    if (params.lawyer) {
-      results = results.filter((p) =>
-        (p.lawyers || []).some((lawyer) => lawyer.toLowerCase().includes(params.lawyer!.toLowerCase()))
-      );
-    }
-
-    // Paginação
-    const page = params.page || 1;
-    const limit = params.limit || 10;
-    const start = (page - 1) * limit;
-    const end = start + limit;
-
-    return results.slice(start, end);
+    // Sem dados mock, retorna array vazio
+    return [];
   }
 
   /**
@@ -245,10 +166,10 @@ class DJENApiService {
         return this.formatPublications(response.data.result.items);
       }
 
-      return this.mockData.slice(0, limit);
+      return [];
     } catch (error) {
-      console.warn("Erro ao buscar publicações recentes, usando mock:", error);
-      return this.mockData.slice(0, limit);
+      console.warn("Erro ao buscar publicações recentes:", error);
+      return [];
     }
   }
 
@@ -274,19 +195,7 @@ class DJENApiService {
     }));
   }
 
-  /**
-   * Adicionar dados mock (para desenvolvimento/testes)
-   */
-  addMockData(publication: DJENPublication): void {
-    this.mockData.push(publication);
-  }
 
-  /**
-   * Limpar dados mock
-   */
-  clearMockData(): void {
-    this.mockData = [];
-  }
 }
 
 export const djenApi = new DJENApiService();

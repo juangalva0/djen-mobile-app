@@ -1,4 +1,4 @@
-import { ScrollView, Text, View, TouchableOpacity, Switch, Alert } from "react-native";
+import { ScrollView, Text, View, TouchableOpacity, Alert } from "react-native";
 import { ScreenContainer } from "@/components/screen-container";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useColors } from "@/hooks/use-colors";
@@ -10,8 +10,6 @@ export default function ProfileScreen() {
   const colors = useColors();
   const router = useRouter();
   const { user, logout, upgradeToPremium } = useAuth();
-  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
-  const [darkMode, setDarkMode] = useState(false);
   const [isUpgrading, setIsUpgrading] = useState(false);
 
   const handleLogout = () => {
@@ -131,15 +129,9 @@ export default function ProfileScreen() {
           title="Notificações"
           items={[
             {
-              label: "Ativar Notificações",
+              label: "Configurar Notificações",
               icon: "bell.fill",
-              rightElement: (
-                <Switch
-                  value={notificationsEnabled}
-                  onValueChange={setNotificationsEnabled}
-                  trackColor={{ false: colors.border, true: colors.primary }}
-                />
-              ),
+              onPress: () => router.push("/notification-settings"),
             },
           ]}
         />
@@ -149,19 +141,9 @@ export default function ProfileScreen() {
           title="Aparência"
           items={[
             {
-              label: "Modo Escuro",
+              label: "Tema e Fonte",
               icon: "slider.horizontal.3",
-              rightElement: (
-                <Switch
-                  value={darkMode}
-                  onValueChange={setDarkMode}
-                  trackColor={{ false: colors.border, true: colors.primary }}
-                />
-              ),
-            },
-            {
-              label: "Tamanho de Fonte",
-              icon: "slider.horizontal.3",
+              onPress: () => router.push("/appearance-settings"),
             },
           ]}
         />
@@ -173,14 +155,12 @@ export default function ProfileScreen() {
             {
               label: "Editar Perfil",
               icon: "person.fill",
+              onPress: () => router.push("/edit-profile"),
             },
             {
-              label: "Alterar Senha",
+              label: "Segurança",
               icon: "slider.horizontal.3",
-            },
-            {
-              label: "Autenticação Biométrica",
-              icon: "slider.horizontal.3",
+              onPress: () => router.push("/security-settings"),
             },
           ]}
         />
@@ -192,14 +172,17 @@ export default function ProfileScreen() {
             {
               label: "Privacidade",
               icon: "slider.horizontal.3",
+              onPress: () => router.push({ pathname: "/legal-info", params: { type: "privacy" } }),
             },
             {
               label: "Termos de Uso",
               icon: "slider.horizontal.3",
+              onPress: () => router.push({ pathname: "/legal-info", params: { type: "terms" } }),
             },
             {
               label: "Sobre o App",
               icon: "slider.horizontal.3",
+              onPress: () => router.push({ pathname: "/legal-info", params: { type: "about" } }),
             },
           ]}
         />
