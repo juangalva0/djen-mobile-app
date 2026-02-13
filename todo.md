@@ -225,3 +225,4 @@
 
 ## Bugs Reportados
 - [x] Tema e fonte não estão funcionando nas configurações de aparência
+- [x] Corrigir contraste de letras no modo escuro (letras não visíveis)
