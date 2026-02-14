@@ -234,3 +234,13 @@
 - [x] Usar react-native-reanimated para animação
 - [x] Adicionar fade-in/fade-out na mudança de cores
 - [ ] Testar animação em iOS, Android e Web
+
+
+## Implementações Solicitadas (Fase 5)
+
+### Migração de API DataJUD para DJEN
+- [x] Remover todas as referências à API DataJUD
+- [x] Estudar endpoints da API DJEN do PJe
+- [x] Atualizar cliente HTTP para usar API DJEN
+- [x] Implementar busca com novos endpoints
+- [ ] Testar integração com dados reais
