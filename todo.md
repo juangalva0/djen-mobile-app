@@ -226,3 +226,11 @@
 ## Bugs Reportados
 - [x] Tema e fonte não estão funcionando nas configurações de aparência
 - [x] Corrigir contraste de letras no modo escuro (letras não visíveis)
+
+## Implementações Solicitadas (Fase 4)
+
+### Animação de Transição de Tema
+- [x] Implementar transição suave ao alternar entre modo claro e escuro
+- [x] Usar react-native-reanimated para animação
+- [x] Adicionar fade-in/fade-out na mudança de cores
+- [ ] Testar animação em iOS, Android e Web

@@ -2,6 +2,12 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import { Appearance, View, useColorScheme as useSystemColorScheme } from "react-native";
 import { colorScheme as nativewindColorScheme, vars } from "nativewind";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import Animated, { 
+  useAnimatedStyle, 
+  useSharedValue, 
+  withTiming,
+  Easing 
+} from "react-native-reanimated";
 
 import { SchemeColors, type ColorScheme } from "@/constants/theme";
 
@@ -22,6 +28,9 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [colorScheme, setColorSchemeState] = useState<ColorScheme>(systemScheme);
   const [fontSize, setFontSizeState] = useState<"small" | "normal" | "large">("normal");
   const [isLoading, setIsLoading] = useState(true);
+  
+  // Animação de opacidade para transição suave
+  const opacity = useSharedValue(1);
 
   // Carregar preferências salvas ao iniciar
   useEffect(() => {
@@ -62,15 +71,26 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   const setColorScheme = useCallback(
     async (scheme: ColorScheme) => {
-      setColorSchemeState(scheme);
-      applyScheme(scheme);
+      // Animar transição: fade out, mudar tema, fade in
+      opacity.value = withTiming(0, { 
+        duration: 150, 
+        easing: Easing.inOut(Easing.ease) 
+      }, () => {
+        setColorSchemeState(scheme);
+        applyScheme(scheme);
+        opacity.value = withTiming(1, { 
+          duration: 150, 
+          easing: Easing.inOut(Easing.ease) 
+        });
+      });
+
       try {
         await AsyncStorage.setItem(THEME_STORAGE_KEY, scheme);
       } catch (error) {
         console.error("Erro ao salvar tema:", error);
       }
     },
-    [applyScheme]
+    [applyScheme, opacity]
   );
 
   const setFontSize = useCallback(async (size: "small" | "normal" | "large") => {
@@ -104,6 +124,10 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     [colorScheme]
   );
 
+  const animatedStyle = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+  }));
+
   const value = useMemo(
     () => ({
       colorScheme,
@@ -120,7 +144,9 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <ThemeContext.Provider value={value}>
-      <View style={[{ flex: 1 }, themeVariables]}>{children}</View>
+      <Animated.View style={[{ flex: 1 }, themeVariables, animatedStyle]}>
+        {children}
+      </Animated.View>
     </ThemeContext.Provider>
   );
 }
