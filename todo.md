@@ -244,3 +244,14 @@
 - [x] Atualizar cliente HTTP para usar API DJEN
 - [x] Implementar busca com novos endpoints
 - [ ] Testar integração com dados reais
+
+
+## Implementações Solicitadas (Fase 6)
+
+### Melhoria de Filtros Avançados
+- [x] Adicionar campos: Teor da comunicação, Instituições, Órgãos, Meios, Nº OAB, UF da OAB
+- [x] Implementar salvamento de múltiplos filtros personalizados
+- [x] Diferenciar resultados de buscas por cores/badges
+- [x] Redesenhar layout da página de filtros conforme exemplo
+- [x] Adicionar funcionalidade de carregar filtros salvos
+- [x] Implementar exclusão de filtros salvos

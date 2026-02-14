@@ -1,59 +1,131 @@
-import { ScrollView, Text, View, TextInput, TouchableOpacity, Switch } from "react-native";
+import { ScrollView, Text, View, TextInput, TouchableOpacity, Alert, FlatList } from "react-native";
 import { ScreenContainer } from "@/components/screen-container";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useColors } from "@/hooks/use-colors";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 interface FilterState {
-  tribunal: string;
-  startDate: string;
-  endDate: string;
-  tipoAto: string;
-  palavraChave: string;
-  partes: string;
-  advogado: string;
+  teor?: string;
+  instituicoes?: string;
+  orgaos?: string;
+  meios?: string;
+  startDate?: string;
+  endDate?: string;
+  numeroProcesso?: string;
+  nomeParte?: string;
+  nomeAdvogado?: string;
+  numeroOAB?: string;
+  ufOAB?: string;
 }
+
+interface SavedFilter {
+  id: string;
+  name: string;
+  filters: FilterState;
+  color: string;
+  createdAt: string;
+}
+
+const SAVED_FILTERS_KEY = "djen_saved_filters";
+const FILTER_COLORS = ["#FF6B6B", "#4ECDC4", "#45B7D1", "#FFA07A", "#98D8C8", "#F7DC6F", "#BB8FCE", "#85C1E2"];
 
 export default function FiltersScreen() {
   const colors = useColors();
   const [filters, setFilters] = useState<FilterState>({
-    tribunal: "",
+    teor: "",
+    instituicoes: "",
+    orgaos: "",
+    meios: "",
     startDate: "",
     endDate: "",
-    tipoAto: "",
-    palavraChave: "",
-    partes: "",
-    advogado: "",
+    numeroProcesso: "",
+    nomeParte: "",
+    nomeAdvogado: "",
+    numeroOAB: "",
+    ufOAB: "",
   });
 
-  const [savedFilters, setSavedFilters] = useState<{ name: string; id: string }[]>([
-    { name: "Meus Processos Ativos", id: "1" },
-    { name: "Últimos 30 dias", id: "2" },
-  ]);
+  const [savedFilters, setSavedFilters] = useState<SavedFilter[]>([]);
+  const [showSaveDialog, setShowSaveDialog] = useState(false);
+  const [filterName, setFilterName] = useState("");
 
-  const tribunals = ["TJ-SP", "TJ-RJ", "TJ-MG", "TJ-BA", "STJ", "STF"];
-  const tiposAto = ["Sentença", "Despacho", "Acórdão", "Decisão Monocrática", "Parecer"];
-  const periodPresets = [
-    { label: "Últimos 7 dias", days: 7 },
-    { label: "Últimos 30 dias", days: 30 },
-    { label: "Últimos 90 dias", days: 90 },
-  ];
+  useEffect(() => {
+    loadSavedFilters();
+  }, []);
 
-  const handleApplyFilters = () => {
-    // Aqui seria feita a busca com os filtros aplicados
-    console.log("Filtros aplicados:", filters);
+  const loadSavedFilters = async () => {
+    try {
+      const stored = await AsyncStorage.getItem(SAVED_FILTERS_KEY);
+      if (stored) {
+        setSavedFilters(JSON.parse(stored));
+      }
+    } catch (error) {
+      console.error("Erro ao carregar filtros salvos:", error);
+    }
+  };
+
+  const saveFilter = async () => {
+    if (!filterName.trim()) {
+      Alert.alert("Erro", "Digite um nome para o filtro");
+      return;
+    }
+
+    try {
+      const newFilter: SavedFilter = {
+        id: Date.now().toString(),
+        name: filterName,
+        filters,
+        color: FILTER_COLORS[savedFilters.length % FILTER_COLORS.length],
+        createdAt: new Date().toISOString(),
+      };
+
+      const updated = [...savedFilters, newFilter];
+      await AsyncStorage.setItem(SAVED_FILTERS_KEY, JSON.stringify(updated));
+      setSavedFilters(updated);
+      setFilterName("");
+      setShowSaveDialog(false);
+      Alert.alert("Sucesso", "Filtro salvo com sucesso!");
+    } catch (error) {
+      Alert.alert("Erro", "Não foi possível salvar o filtro");
+    }
+  };
+
+  const deleteFilter = async (id: string) => {
+    try {
+      const updated = savedFilters.filter((f) => f.id !== id);
+      await AsyncStorage.setItem(SAVED_FILTERS_KEY, JSON.stringify(updated));
+      setSavedFilters(updated);
+      Alert.alert("Sucesso", "Filtro removido");
+    } catch (error) {
+      Alert.alert("Erro", "Não foi possível remover o filtro");
+    }
+  };
+
+  const loadFilter = (filter: SavedFilter) => {
+    setFilters(filter.filters);
+    Alert.alert("Filtro Carregado", `Filtro "${filter.name}" carregado com sucesso`);
   };
 
   const handleClearFilters = () => {
     setFilters({
-      tribunal: "",
+      teor: "",
+      instituicoes: "",
+      orgaos: "",
+      meios: "",
       startDate: "",
       endDate: "",
-      tipoAto: "",
-      palavraChave: "",
-      partes: "",
-      advogado: "",
+      numeroProcesso: "",
+      nomeParte: "",
+      nomeAdvogado: "",
+      numeroOAB: "",
+      ufOAB: "",
     });
+  };
+
+  const handleApplyFilters = () => {
+    console.log("Filtros aplicados:", filters);
+    Alert.alert("Busca", "Buscando com os filtros aplicados...");
   };
 
   const FilterInput = ({
@@ -97,147 +169,327 @@ export default function FiltersScreen() {
   }) => (
     <View className="mb-4">
       <Text className="text-sm font-semibold text-foreground mb-2">{label}</Text>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-        <View className="flex-row gap-2">
+      <View
+        style={{
+          backgroundColor: colors.surface,
+          borderColor: colors.border,
+          borderWidth: 1,
+          borderRadius: 8,
+          overflow: "hidden",
+        }}
+      >
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} className="px-4 py-2">
           {options.map((option) => (
             <TouchableOpacity
               key={option}
               onPress={() => onSelect(option)}
               style={{
                 backgroundColor: value === option ? colors.primary : colors.surface,
-                borderColor: colors.border,
-                borderWidth: 1,
+                paddingHorizontal: 12,
+                paddingVertical: 8,
+                marginRight: 8,
+                borderRadius: 6,
+                marginVertical: 4,
               }}
-              className="px-4 py-2 rounded-full"
             >
               <Text
                 style={{
-                  color: value === option ? "#FFFFFF" : colors.foreground,
+                  color: value === option ? "#fff" : colors.foreground,
+                  fontSize: 14,
+                  fontWeight: "500",
                 }}
-                className="text-sm font-medium"
               >
                 {option}
               </Text>
             </TouchableOpacity>
           ))}
-        </View>
-      </ScrollView>
+        </ScrollView>
+      </View>
     </View>
+  );
+
+  const SavedFilterCard = ({ filter }: { filter: SavedFilter }) => (
+    <TouchableOpacity
+      onPress={() => loadFilter(filter)}
+      style={{
+        backgroundColor: colors.surface,
+        borderLeftColor: filter.color,
+        borderLeftWidth: 4,
+        borderRadius: 8,
+        padding: 12,
+        marginBottom: 12,
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+      }}
+    >
+      <View className="flex-1">
+        <Text className="font-semibold text-foreground">{filter.name}</Text>
+        <Text className="text-xs text-muted mt-1">
+          {new Date(filter.createdAt).toLocaleDateString("pt-BR")}
+        </Text>
+      </View>
+      <TouchableOpacity
+        onPress={() => {
+          Alert.alert("Remover Filtro", `Deseja remover "${filter.name}"?`, [
+            { text: "Cancelar", style: "cancel" },
+            {
+              text: "Remover",
+              style: "destructive",
+              onPress: () => deleteFilter(filter.id),
+            },
+          ]);
+        }}
+        className="p-2"
+      >
+        <IconSymbol name="chevron.right" size={20} color={colors.muted} />
+      </TouchableOpacity>
+    </TouchableOpacity>
   );
 
   return (
     <ScreenContainer className="p-4">
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false}>
-        {/* Header */}
-        <View className="mb-6">
-          <Text className="text-2xl font-bold text-foreground">Filtros Avançados</Text>
-          <Text className="text-sm text-muted mt-1">Personalize sua busca</Text>
-        </View>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 20 }}>
+        {/* Título */}
+        <Text className="text-2xl font-bold text-foreground mb-6">Filtros Avançados</Text>
 
-        {/* Tribunal Filter */}
-        <FilterSelect
-          label="Tribunal"
-          options={tribunals}
-          value={filters.tribunal}
-          onSelect={(value) => setFilters({ ...filters, tribunal: value })}
-        />
-
-        {/* Tipo de Ato Filter */}
-        <FilterSelect
-          label="Tipo de Ato"
-          options={tiposAto}
-          value={filters.tipoAto}
-          onSelect={(value) => setFilters({ ...filters, tipoAto: value })}
-        />
-
-        {/* Period Presets */}
-        <View className="mb-4">
-          <Text className="text-sm font-semibold text-foreground mb-2">Período</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            <View className="flex-row gap-2">
-              {periodPresets.map((preset) => (
-                <TouchableOpacity
-                  key={preset.days}
-                  style={{
-                    backgroundColor: colors.surface,
-                    borderColor: colors.border,
-                    borderWidth: 1,
-                  }}
-                  className="px-4 py-2 rounded-full"
-                >
-                  <Text className="text-sm font-medium text-foreground">{preset.label}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </ScrollView>
-        </View>
-
-        {/* Text Filters */}
-        <FilterInput
-          label="Palavra-chave"
-          value={filters.palavraChave}
-          onChangeText={(text) => setFilters({ ...filters, palavraChave: text })}
-          placeholder="Ex: indenização, dano moral..."
-        />
-
-        <FilterInput
-          label="Partes"
-          value={filters.partes}
-          onChangeText={(text) => setFilters({ ...filters, partes: text })}
-          placeholder="Nome das partes envolvidas"
-        />
-
-        <FilterInput
-          label="Advogado"
-          value={filters.advogado}
-          onChangeText={(text) => setFilters({ ...filters, advogado: text })}
-          placeholder="Nome do advogado"
-        />
-
-        {/* Saved Filters */}
+        {/* Filtros Salvos */}
         {savedFilters.length > 0 && (
-          <View className="mb-6 pt-4 border-t" style={{ borderColor: colors.border }}>
-            <Text className="text-sm font-semibold text-foreground mb-3">Filtros Salvos</Text>
+          <View className="mb-6">
+            <Text className="text-lg font-semibold text-foreground mb-3">Meus Filtros</Text>
             {savedFilters.map((filter) => (
-              <TouchableOpacity
-                key={filter.id}
-                style={{
-                  backgroundColor: colors.surface,
-                  borderColor: colors.border,
-                  borderWidth: 1,
-                }}
-                className="rounded-lg p-3 mb-2 flex-row justify-between items-center"
-              >
-                <Text className="text-sm text-foreground font-medium">{filter.name}</Text>
-                <IconSymbol name="chevron.right" size={16} color={colors.muted} />
-              </TouchableOpacity>
+              <SavedFilterCard key={filter.id} filter={filter} />
             ))}
           </View>
         )}
 
-        {/* Action Buttons */}
-        <View className="flex-row gap-3 mt-6">
+        {/* Campos de Filtro */}
+        <Text className="text-lg font-semibold text-foreground mb-4">Criar Novo Filtro</Text>
+
+        {/* Teor da Comunicação */}
+        <FilterInput
+          label="Teor da comunicação"
+          value={filters.teor || ""}
+          onChangeText={(text) => setFilters({ ...filters, teor: text })}
+          placeholder="Digite o teor..."
+        />
+
+        {/* Instituições */}
+        <FilterSelect
+          label="Todas as instituições"
+          options={["Todas as instituições", "Poder Judiciário", "Ministério Público", "Defensoria Pública"]}
+          value={filters.instituicoes || ""}
+          onSelect={(value) => setFilters({ ...filters, instituicoes: value })}
+        />
+
+        {/* Órgãos */}
+        <FilterSelect
+          label="Todos os órgãos"
+          options={["Todos os órgãos", "Tribunal de Justiça", "Juizado Especial", "Vara Cível", "Vara Criminal"]}
+          value={filters.orgaos || ""}
+          onSelect={(value) => setFilters({ ...filters, orgaos: value })}
+        />
+
+        {/* Meios */}
+        <FilterSelect
+          label="Todos os meios"
+          options={["Todos os meios", "Eletrônico", "Físico", "Híbrido"]}
+          value={filters.meios || ""}
+          onSelect={(value) => setFilters({ ...filters, meios: value })}
+        />
+
+        {/* Datas */}
+        <View className="flex-row gap-3 mb-4">
+          <View className="flex-1">
+            <Text className="text-sm font-semibold text-foreground mb-2">Data inicial</Text>
+            <TextInput
+              style={{
+                backgroundColor: colors.surface,
+                borderColor: colors.border,
+                color: colors.foreground,
+              }}
+              className="border rounded-lg px-4 py-3 text-base"
+              placeholder="DD/MM/YYYY"
+              placeholderTextColor={colors.muted}
+              value={filters.startDate || ""}
+              onChangeText={(text) => setFilters({ ...filters, startDate: text })}
+            />
+          </View>
+          <View className="flex-1">
+            <Text className="text-sm font-semibold text-foreground mb-2">Data final</Text>
+            <TextInput
+              style={{
+                backgroundColor: colors.surface,
+                borderColor: colors.border,
+                color: colors.foreground,
+              }}
+              className="border rounded-lg px-4 py-3 text-base"
+              placeholder="DD/MM/YYYY"
+              placeholderTextColor={colors.muted}
+              value={filters.endDate || ""}
+              onChangeText={(text) => setFilters({ ...filters, endDate: text })}
+            />
+          </View>
+        </View>
+
+        {/* Nº de Processo */}
+        <FilterInput
+          label="Nº de processo"
+          value={filters.numeroProcesso || ""}
+          onChangeText={(text) => setFilters({ ...filters, numeroProcesso: text })}
+          placeholder="Digite o número do processo..."
+        />
+
+        {/* Nome da Parte */}
+        <FilterInput
+          label="Nome da parte"
+          value={filters.nomeParte || ""}
+          onChangeText={(text) => setFilters({ ...filters, nomeParte: text })}
+          placeholder="Digite o nome da parte..."
+        />
+
+        {/* Nome do Advogado */}
+        <FilterInput
+          label="Nome do advogado"
+          value={filters.nomeAdvogado || ""}
+          onChangeText={(text) => setFilters({ ...filters, nomeAdvogado: text })}
+          placeholder="Digite o nome do advogado..."
+        />
+
+        {/* Nº da OAB */}
+        <FilterInput
+          label="Nº da OAB"
+          value={filters.numeroOAB || ""}
+          onChangeText={(text) => setFilters({ ...filters, numeroOAB: text })}
+          placeholder="Digite o número da OAB..."
+        />
+
+        {/* UF da OAB */}
+        <FilterSelect
+          label="UF da OAB"
+          options={["SP", "RJ", "MG", "BA", "SC", "RS", "PR", "PE", "CE", "GO", "DF", "Outros"]}
+          value={filters.ufOAB || ""}
+          onSelect={(value) => setFilters({ ...filters, ufOAB: value })}
+        />
+
+        {/* Botões de Ação */}
+        <View className="flex-row gap-3 mt-6 mb-4">
           <TouchableOpacity
             onPress={handleClearFilters}
             style={{
               backgroundColor: colors.surface,
               borderColor: colors.border,
               borderWidth: 1,
+              paddingVertical: 12,
+              paddingHorizontal: 16,
+              borderRadius: 8,
+              flex: 1,
             }}
-            className="flex-1 rounded-lg py-3 items-center justify-center"
           >
-            <Text className="text-foreground font-semibold">Limpar Tudo</Text>
+            <Text className="text-center font-semibold text-foreground">Limpar Filtros</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() => setShowSaveDialog(true)}
+            style={{
+              backgroundColor: colors.primary,
+              paddingVertical: 12,
+              paddingHorizontal: 16,
+              borderRadius: 8,
+              flex: 1,
+            }}
+          >
+            <Text className="text-center font-semibold text-white">Salvar Filtro</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             onPress={handleApplyFilters}
-            style={{ backgroundColor: colors.primary }}
-            className="flex-1 rounded-lg py-3 items-center justify-center"
+            style={{
+              backgroundColor: colors.primary,
+              paddingVertical: 12,
+              paddingHorizontal: 16,
+              borderRadius: 8,
+              flex: 1,
+            }}
           >
-            <Text className="text-white font-semibold">Aplicar Filtros</Text>
+            <Text className="text-center font-semibold text-white">Pesquisar</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
+
+      {/* Modal de Salvar Filtro */}
+      {showSaveDialog && (
+        <View
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "rgba(0,0,0,0.5)",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 1000,
+          }}
+        >
+          <View
+            style={{
+              backgroundColor: colors.surface,
+              borderRadius: 12,
+              padding: 20,
+              width: "80%",
+              maxWidth: 300,
+            }}
+          >
+            <Text className="text-lg font-bold text-foreground mb-4">Salvar Filtro</Text>
+            <TextInput
+              style={{
+                backgroundColor: colors.background,
+                borderColor: colors.border,
+                color: colors.foreground,
+                borderWidth: 1,
+                borderRadius: 8,
+                paddingHorizontal: 12,
+                paddingVertical: 10,
+                marginBottom: 16,
+              }}
+              placeholder="Nome do filtro"
+              placeholderTextColor={colors.muted}
+              value={filterName}
+              onChangeText={setFilterName}
+            />
+            <View className="flex-row gap-3">
+              <TouchableOpacity
+                onPress={() => {
+                  setShowSaveDialog(false);
+                  setFilterName("");
+                }}
+                style={{
+                  backgroundColor: colors.border,
+                  paddingVertical: 10,
+                  paddingHorizontal: 16,
+                  borderRadius: 8,
+                  flex: 1,
+                }}
+              >
+                <Text className="text-center font-semibold text-foreground">Cancelar</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={saveFilter}
+                style={{
+                  backgroundColor: colors.primary,
+                  paddingVertical: 10,
+                  paddingHorizontal: 16,
+                  borderRadius: 8,
+                  flex: 1,
+                }}
+              >
+                <Text className="text-center font-semibold text-white">Salvar</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      )}
     </ScreenContainer>
   );
 }
