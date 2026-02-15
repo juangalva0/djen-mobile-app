@@ -270,4 +270,4 @@
 
 
 ## Bugs Reportados (Fase 8)
-- [x] Corrigir entrada de texto nos campos de filtros (texto vai uma letra por vez)
+- [x] Corrigir entrada de texto nos campos de filtros (TextInput perde foco após cada letra)
