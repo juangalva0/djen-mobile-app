@@ -238,9 +238,9 @@ export default function ProcessDetailScreen() {
       <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false}>
         {/* Header with Back Button */}
         <View className="flex-row items-center justify-between mb-6">
-          <TouchableOpacity onPress={() => router.back()} className="flex-row items-center gap-2">
-            <IconSymbol name="chevron.left" size={24} color={colors.primary} />
-            <Text style={{ color: colors.primary, fontSize: 16, fontWeight: "600" }}>Voltar</Text>
+          <Text className="text-2xl font-bold text-foreground flex-1">Detalhes do Processo</Text>
+          <TouchableOpacity onPress={() => router.back()}>
+            <IconSymbol name="chevron.left.forwardslash.chevron.right" size={24} color={colors.foreground} />
           </TouchableOpacity>
 
           <TouchableOpacity

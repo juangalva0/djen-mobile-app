@@ -119,7 +119,7 @@ export default function EditProfileScreen() {
         <View className="flex-row items-center justify-between mb-6">
           <Text className="text-2xl font-bold text-foreground">Editar Perfil</Text>
           <TouchableOpacity onPress={() => router.back()}>
-            <IconSymbol name="chevron.left" size={24} color={colors.foreground} />
+            <IconSymbol name="chevron.left.forwardslash.chevron.right" size={24} color={colors.foreground} />
           </TouchableOpacity>
         </View>
 

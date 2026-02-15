@@ -330,3 +330,11 @@
 - [x] Permitir edição dos filtros aplicados dentro da modal
 
 - [x] Corrigir perda de foco no TextInput da tela de perfil
+
+
+## Implementações Solicitadas (Fase 14)
+
+### Padronização de Botões de Voltar
+- [x] Revisar botão de voltar em editar notificações
+- [x] Padronizar botão de voltar em todas as telas
+- [x] Aplicar padrão em: edit-profile, appearance-settings, security-settings, legal-info, process-detail, publication-detail
