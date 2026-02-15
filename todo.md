@@ -306,3 +306,15 @@
 - [x] Implementar navegação de volta
 - [x] Adicionar botão de favoritar processo
 - [x] Mostrar status do processo (ativo/concluído/suspenso)
+
+
+## Implementações Solicitadas (Fase 12)
+
+### Editar e Deletar Filtros
+- [x] Adicionar botão de editar filtro
+- [x] Criar modal/tela de edição de filtro
+- [x] Permitir alteração de valores dos campos
+- [x] Salvar alterações no AsyncStorage
+- [x] Adicionar botão de excluir filtro
+- [x] Confirmar exclusão antes de deletar
+- [x] Atualizar resultados após editar filtro
