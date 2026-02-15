@@ -328,3 +328,5 @@
 - [x] Adicionar botão de voltar no topo da modal
 - [x] Habilitar botões "Salvar Filtro" e "Deletar Filtro" no final
 - [x] Permitir edição dos filtros aplicados dentro da modal
+
+- [x] Corrigir perda de foco no TextInput da tela de perfil
