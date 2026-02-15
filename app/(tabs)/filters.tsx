@@ -167,17 +167,14 @@ FilterDropdown.displayName = "FilterDropdown";
 const SavedFilterCard = memo(({
   filter,
   colors,
-  onLoad,
-  onEdit,
-  onDelete,
+  onPress,
 }: {
   filter: SavedFilter;
   colors: any;
-  onLoad: (filter: SavedFilter) => void;
-  onEdit: (filter: SavedFilter) => void;
-  onDelete: (id: string) => void;
+  onPress: (filter: SavedFilter) => void;
 }) => (
-  <View
+  <TouchableOpacity
+    onPress={() => onPress(filter)}
     style={{
       backgroundColor: colors.surface,
       borderLeftColor: filter.color,
@@ -185,80 +182,19 @@ const SavedFilterCard = memo(({
       borderRadius: 8,
       padding: 12,
       marginBottom: 12,
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
     }}
   >
-    <TouchableOpacity
-      onPress={() => onLoad(filter)}
-      style={{
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
-      }}
-    >
-      <View className="flex-1">
-        <Text className="font-semibold text-foreground">{filter.name}</Text>
-        <Text className="text-xs text-muted mt-1">
-          {new Date(filter.createdAt).toLocaleDateString("pt-BR")}
-        </Text>
-      </View>
-      <IconSymbol name="chevron.right" size={20} color={colors.muted} />
-    </TouchableOpacity>
-
-    {/* Action Buttons */}
-    <View
-      style={{
-        flexDirection: "row",
-        gap: 8,
-        marginTop: 12,
-        paddingTop: 12,
-        borderTopColor: colors.border,
-        borderTopWidth: 1,
-      }}
-    >
-      <TouchableOpacity
-        onPress={() => onEdit(filter)}
-        style={{
-          flex: 1,
-          flexDirection: "row",
-          alignItems: "center",
-          justifyContent: "center",
-          backgroundColor: colors.primary,
-          borderRadius: 6,
-          paddingVertical: 8,
-          gap: 6,
-        }}
-      >
-        <IconSymbol name="pencil" size={16} color="#FFFFFF" />
-        <Text style={{ color: "#FFFFFF", fontSize: 14, fontWeight: "600" }}>Editar</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity
-        onPress={() => {
-          Alert.alert("Remover Filtro", `Deseja remover "${filter.name}"?`, [
-            { text: "Cancelar", style: "cancel" },
-            {
-              text: "Remover",
-              style: "destructive",
-              onPress: () => onDelete(filter.id),
-            },
-          ]);
-        }}
-        style={{
-          flex: 1,
-          flexDirection: "row",
-          alignItems: "center",
-          justifyContent: "center",
-          backgroundColor: colors.error,
-          borderRadius: 6,
-          paddingVertical: 8,
-          gap: 6,
-        }}
-      >
-        <IconSymbol name="trash" size={16} color="#FFFFFF" />
-        <Text style={{ color: "#FFFFFF", fontSize: 14, fontWeight: "600" }}>Deletar</Text>
-      </TouchableOpacity>
+    <View className="flex-1">
+      <Text className="font-semibold text-foreground">{filter.name}</Text>
+      <Text className="text-xs text-muted mt-1">
+        {new Date(filter.createdAt).toLocaleDateString("pt-BR")}
+      </Text>
     </View>
-  </View>
+    <IconSymbol name="chevron.right" size={20} color={colors.muted} />
+  </TouchableOpacity>
 ));
 
 SavedFilterCard.displayName = "SavedFilterCard";
@@ -281,11 +217,12 @@ export default function FiltersScreen() {
 
   const [savedFilters, setSavedFilters] = useState<SavedFilter[]>([]);
   const [showSaveDialog, setShowSaveDialog] = useState(false);
-  const [showEditModal, setShowEditModal] = useState(false);
+  const [showFilterDetailsModal, setShowFilterDetailsModal] = useState(false);
   const [filterName, setFilterName] = useState("");
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
-  const [editingFilter, setEditingFilter] = useState<SavedFilter | null>(null);
+  const [selectedFilter, setSelectedFilter] = useState<SavedFilter | null>(null);
   const [editingName, setEditingName] = useState("");
+  const [isEditingName, setIsEditingName] = useState(false);
 
   useEffect(() => {
     loadSavedFilters();
@@ -328,51 +265,57 @@ export default function FiltersScreen() {
     }
   };
 
-  const updateFilter = async () => {
-    if (!editingFilter || !editingName.trim()) {
+  const updateFilterName = async () => {
+    if (!selectedFilter || !editingName.trim()) {
       Alert.alert("Erro", "Digite um nome para o filtro");
       return;
     }
 
     try {
       const updated = savedFilters.map((f) =>
-        f.id === editingFilter.id
-          ? { ...f, name: editingName, filters }
+        f.id === selectedFilter.id
+          ? { ...f, name: editingName }
           : f
       );
       await AsyncStorage.setItem(SAVED_FILTERS_KEY, JSON.stringify(updated));
       setSavedFilters(updated);
-      setEditingFilter(null);
-      setEditingName("");
-      setShowEditModal(false);
+      setSelectedFilter({ ...selectedFilter, name: editingName });
+      setIsEditingName(false);
       Alert.alert("Sucesso", "Filtro atualizado com sucesso!");
     } catch (error) {
       Alert.alert("Erro", "Não foi possível atualizar o filtro");
     }
   };
 
-  const deleteFilter = useCallback(async (id: string) => {
-    try {
-      const updated = savedFilters.filter((f) => f.id !== id);
-      await AsyncStorage.setItem(SAVED_FILTERS_KEY, JSON.stringify(updated));
-      setSavedFilters(updated);
-      Alert.alert("Sucesso", "Filtro removido");
-    } catch (error) {
-      Alert.alert("Erro", "Não foi possível remover o filtro");
-    }
-  }, [savedFilters]);
+  const deleteFilter = async () => {
+    if (!selectedFilter) return;
+
+    Alert.alert("Remover Filtro", `Deseja remover "${selectedFilter.name}"?`, [
+      { text: "Cancelar", style: "cancel" },
+      {
+        text: "Remover",
+        style: "destructive",
+        onPress: async () => {
+          try {
+            const updated = savedFilters.filter((f) => f.id !== selectedFilter.id);
+            await AsyncStorage.setItem(SAVED_FILTERS_KEY, JSON.stringify(updated));
+            setSavedFilters(updated);
+            setShowFilterDetailsModal(false);
+            setSelectedFilter(null);
+            Alert.alert("Sucesso", "Filtro removido");
+          } catch (error) {
+            Alert.alert("Erro", "Não foi possível remover o filtro");
+          }
+        },
+      },
+    ]);
+  };
 
   const loadFilter = useCallback((filter: SavedFilter) => {
     setFilters(filter.filters);
+    setShowFilterDetailsModal(false);
     Alert.alert("Filtro Carregado", `Filtro "${filter.name}" carregado com sucesso`);
   }, []);
-
-  const editFilter = (filter: SavedFilter) => {
-    setEditingFilter(filter);
-    setEditingName(filter.name);
-    setFilters(filter.filters);
-    setShowEditModal(true);
-  };
 
   const handleClearFilters = useCallback(() => {
     setFilters({
@@ -399,6 +342,12 @@ export default function FiltersScreen() {
     setFilters((prev) => ({ ...prev, [key]: value }));
   }, []);
 
+  const handleSelectFilter = (filter: SavedFilter) => {
+    setSelectedFilter(filter);
+    setEditingName(filter.name);
+    setShowFilterDetailsModal(true);
+  };
+
   return (
     <ScreenContainer className="p-4">
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 20 }}>
@@ -414,9 +363,7 @@ export default function FiltersScreen() {
                 key={filter.id}
                 filter={filter}
                 colors={colors}
-                onLoad={loadFilter}
-                onEdit={editFilter}
-                onDelete={deleteFilter}
+                onPress={handleSelectFilter}
               />
             ))}
           </View>
@@ -703,91 +650,182 @@ export default function FiltersScreen() {
         </View>
       </Modal>
 
-      {/* Modal de Editar Filtro */}
+      {/* Modal de Detalhes do Filtro */}
       <Modal
-        visible={showEditModal}
+        visible={showFilterDetailsModal}
         transparent
-        animationType="fade"
-        onRequestClose={() => setShowEditModal(false)}
+        animationType="slide"
+        onRequestClose={() => setShowFilterDetailsModal(false)}
       >
         <View
           style={{
             flex: 1,
-            backgroundColor: "rgba(0, 0, 0, 0.5)",
-            justifyContent: "center",
-            alignItems: "center",
-            paddingHorizontal: 20,
+            backgroundColor: colors.background,
           }}
         >
-          <View
-            style={{
-              backgroundColor: colors.surface,
-              borderRadius: 12,
-              padding: 20,
-              width: "100%",
-              maxWidth: 400,
-            }}
-          >
-            <Text style={{ color: colors.foreground, fontSize: 18, fontWeight: "700", marginBottom: 16 }}>
-              Editar Filtro
-            </Text>
-
-            <TextInput
+          <ScreenContainer className="p-4">
+            {/* Header */}
+            <View
               style={{
-                backgroundColor: colors.background,
-                borderColor: colors.border,
-                borderWidth: 1,
-                borderRadius: 8,
-                color: colors.foreground,
-                paddingHorizontal: 12,
-                paddingVertical: 12,
-                fontSize: 16,
-                marginBottom: 20,
+                flexDirection: "row",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginBottom: 24,
               }}
-              placeholder="Nome do filtro"
-              placeholderTextColor={colors.muted}
-              value={editingName}
-              onChangeText={setEditingName}
-            />
-
-            <View style={{ flexDirection: "row", gap: 12 }}>
-              <TouchableOpacity
-                onPress={() => {
-                  setShowEditModal(false);
-                  setEditingFilter(null);
-                  setEditingName("");
-                }}
-                style={{
-                  flex: 1,
-                  backgroundColor: colors.surface,
-                  borderColor: colors.border,
-                  borderWidth: 1,
-                  borderRadius: 8,
-                  paddingVertical: 12,
-                  alignItems: "center",
-                }}
-              >
-                <Text style={{ color: colors.foreground, fontSize: 16, fontWeight: "600" }}>
-                  Cancelar
-                </Text>
+            >
+              <TouchableOpacity onPress={() => setShowFilterDetailsModal(false)}>
+                <IconSymbol name="chevron.left" size={24} color={colors.foreground} />
               </TouchableOpacity>
-
-              <TouchableOpacity
-                onPress={updateFilter}
-                style={{
-                  flex: 1,
-                  backgroundColor: colors.primary,
-                  borderRadius: 8,
-                  paddingVertical: 12,
-                  alignItems: "center",
-                }}
-              >
-                <Text style={{ color: "#FFFFFF", fontSize: 16, fontWeight: "600" }}>
-                  Atualizar
-                </Text>
-              </TouchableOpacity>
+              <Text style={{ color: colors.foreground, fontSize: 18, fontWeight: "700" }}>
+                Detalhes do Filtro
+              </Text>
+              <View style={{ width: 24 }} />
             </View>
-          </View>
+
+            <ScrollView showsVerticalScrollIndicator={false}>
+              {selectedFilter && (
+                <View>
+                  {/* Nome do Filtro */}
+                  <View
+                    style={{
+                      backgroundColor: colors.surface,
+                      borderRadius: 12,
+                      padding: 16,
+                      marginBottom: 20,
+                    }}
+                  >
+                    <Text style={{ color: colors.muted, fontSize: 12, fontWeight: "600", marginBottom: 8 }}>
+                      NOME DO FILTRO
+                    </Text>
+                    {isEditingName ? (
+                      <View style={{ flexDirection: "row", gap: 8, alignItems: "center" }}>
+                        <TextInput
+                          style={{
+                            flex: 1,
+                            backgroundColor: colors.background,
+                            borderColor: colors.border,
+                            borderWidth: 1,
+                            borderRadius: 8,
+                            color: colors.foreground,
+                            paddingHorizontal: 12,
+                            paddingVertical: 8,
+                            fontSize: 16,
+                          }}
+                          value={editingName}
+                          onChangeText={setEditingName}
+                        />
+                        <TouchableOpacity
+                          onPress={updateFilterName}
+                          style={{
+                            backgroundColor: colors.primary,
+                            borderRadius: 8,
+                            paddingHorizontal: 12,
+                            paddingVertical: 8,
+                          }}
+                        >
+                          <IconSymbol name="checkmark" size={20} color="#FFFFFF" />
+                        </TouchableOpacity>
+                      </View>
+                    ) : (
+                      <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+                        <Text style={{ color: colors.foreground, fontSize: 16, fontWeight: "600" }}>
+                          {selectedFilter.name}
+                        </Text>
+                        <TouchableOpacity onPress={() => setIsEditingName(true)}>
+                          <IconSymbol name="pencil" size={20} color={colors.primary} />
+                        </TouchableOpacity>
+                      </View>
+                    )}
+                  </View>
+
+                  {/* Informações do Filtro */}
+                  <View
+                    style={{
+                      backgroundColor: colors.surface,
+                      borderRadius: 12,
+                      padding: 16,
+                      marginBottom: 20,
+                    }}
+                  >
+                    <Text style={{ color: colors.muted, fontSize: 12, fontWeight: "600", marginBottom: 12 }}>
+                      FILTROS APLICADOS
+                    </Text>
+                    {selectedFilter.filters.teor && (
+                      <View style={{ marginBottom: 8 }}>
+                        <Text style={{ color: colors.muted, fontSize: 12 }}>Teor:</Text>
+                        <Text style={{ color: colors.foreground, fontSize: 14 }}>
+                          {selectedFilter.filters.teor}
+                        </Text>
+                      </View>
+                    )}
+                    {selectedFilter.filters.numeroProcesso && (
+                      <View style={{ marginBottom: 8 }}>
+                        <Text style={{ color: colors.muted, fontSize: 12 }}>Nº Processo:</Text>
+                        <Text style={{ color: colors.foreground, fontSize: 14 }}>
+                          {selectedFilter.filters.numeroProcesso}
+                        </Text>
+                      </View>
+                    )}
+                    {selectedFilter.filters.nomeParte && (
+                      <View style={{ marginBottom: 8 }}>
+                        <Text style={{ color: colors.muted, fontSize: 12 }}>Parte:</Text>
+                        <Text style={{ color: colors.foreground, fontSize: 14 }}>
+                          {selectedFilter.filters.nomeParte}
+                        </Text>
+                      </View>
+                    )}
+                    {selectedFilter.filters.nomeAdvogado && (
+                      <View style={{ marginBottom: 8 }}>
+                        <Text style={{ color: colors.muted, fontSize: 12 }}>Advogado:</Text>
+                        <Text style={{ color: colors.foreground, fontSize: 14 }}>
+                          {selectedFilter.filters.nomeAdvogado}
+                        </Text>
+                      </View>
+                    )}
+                  </View>
+
+                  {/* Botões de Ação */}
+                  <View style={{ gap: 12, marginBottom: 20 }}>
+                    <TouchableOpacity
+                      onPress={() => loadFilter(selectedFilter)}
+                      style={{
+                        backgroundColor: colors.primary,
+                        borderRadius: 8,
+                        paddingVertical: 14,
+                        alignItems: "center",
+                        flexDirection: "row",
+                        justifyContent: "center",
+                        gap: 8,
+                      }}
+                    >
+                      <IconSymbol name="checkmark.circle" size={20} color="#FFFFFF" />
+                      <Text style={{ color: "#FFFFFF", fontSize: 16, fontWeight: "600" }}>
+                        Carregar Filtro
+                      </Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      onPress={deleteFilter}
+                      style={{
+                        backgroundColor: colors.error,
+                        borderRadius: 8,
+                        paddingVertical: 14,
+                        alignItems: "center",
+                        flexDirection: "row",
+                        justifyContent: "center",
+                        gap: 8,
+                      }}
+                    >
+                      <IconSymbol name="trash" size={20} color="#FFFFFF" />
+                      <Text style={{ color: "#FFFFFF", fontSize: 16, fontWeight: "600" }}>
+                        Deletar Filtro
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              )}
+            </ScrollView>
+          </ScreenContainer>
         </View>
       </Modal>
     </ScreenContainer>

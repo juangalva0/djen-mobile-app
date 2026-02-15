@@ -318,3 +318,7 @@
 - [x] Adicionar botão de excluir filtro
 - [x] Confirmar exclusão antes de deletar
 - [x] Atualizar resultados após editar filtro
+
+- [x] Redesenhar interface de filtros salvos para abrir modal ao clicar
+- [x] Mover botões de editar/deletar para dentro da modal
+- [x] Seguir padrões de design do app nos botões
