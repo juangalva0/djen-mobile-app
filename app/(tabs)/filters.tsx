@@ -222,7 +222,7 @@ export default function FiltersScreen() {
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [selectedFilter, setSelectedFilter] = useState<SavedFilter | null>(null);
   const [editingName, setEditingName] = useState("");
-  const [isEditingName, setIsEditingName] = useState(false);
+  const [editingFilters, setEditingFilters] = useState<FilterState>({});
 
   useEffect(() => {
     loadSavedFilters();
@@ -265,7 +265,7 @@ export default function FiltersScreen() {
     }
   };
 
-  const updateFilterName = async () => {
+  const updateFilter = async () => {
     if (!selectedFilter || !editingName.trim()) {
       Alert.alert("Erro", "Digite um nome para o filtro");
       return;
@@ -274,13 +274,13 @@ export default function FiltersScreen() {
     try {
       const updated = savedFilters.map((f) =>
         f.id === selectedFilter.id
-          ? { ...f, name: editingName }
+          ? { ...f, name: editingName, filters: editingFilters }
           : f
       );
       await AsyncStorage.setItem(SAVED_FILTERS_KEY, JSON.stringify(updated));
       setSavedFilters(updated);
-      setSelectedFilter({ ...selectedFilter, name: editingName });
-      setIsEditingName(false);
+      setShowFilterDetailsModal(false);
+      setSelectedFilter(null);
       Alert.alert("Sucesso", "Filtro atualizado com sucesso!");
     } catch (error) {
       Alert.alert("Erro", "Não foi possível atualizar o filtro");
@@ -311,12 +311,6 @@ export default function FiltersScreen() {
     ]);
   };
 
-  const loadFilter = useCallback((filter: SavedFilter) => {
-    setFilters(filter.filters);
-    setShowFilterDetailsModal(false);
-    Alert.alert("Filtro Carregado", `Filtro "${filter.name}" carregado com sucesso`);
-  }, []);
-
   const handleClearFilters = useCallback(() => {
     setFilters({
       teor: "",
@@ -345,7 +339,12 @@ export default function FiltersScreen() {
   const handleSelectFilter = (filter: SavedFilter) => {
     setSelectedFilter(filter);
     setEditingName(filter.name);
+    setEditingFilters({ ...filter.filters });
     setShowFilterDetailsModal(true);
+  };
+
+  const handleUpdateEditingFilter = (key: keyof FilterState, value: string) => {
+    setEditingFilters((prev) => ({ ...prev, [key]: value }));
   };
 
   return (
@@ -650,10 +649,10 @@ export default function FiltersScreen() {
         </View>
       </Modal>
 
-      {/* Modal de Detalhes do Filtro */}
+      {/* Modal de Editar Filtro */}
       <Modal
         visible={showFilterDetailsModal}
-        transparent
+        transparent={false}
         animationType="slide"
         onRequestClose={() => setShowFilterDetailsModal(false)}
       >
@@ -664,130 +663,161 @@ export default function FiltersScreen() {
           }}
         >
           <ScreenContainer className="p-4">
-            {/* Header */}
+            {/* Header com botão de voltar */}
             <View
               style={{
                 flexDirection: "row",
-                justifyContent: "space-between",
                 alignItems: "center",
                 marginBottom: 24,
+                gap: 12,
               }}
             >
-              <TouchableOpacity onPress={() => setShowFilterDetailsModal(false)}>
+              <TouchableOpacity
+                onPress={() => setShowFilterDetailsModal(false)}
+                style={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: 8,
+                  backgroundColor: colors.surface,
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
                 <IconSymbol name="chevron.left" size={24} color={colors.foreground} />
               </TouchableOpacity>
-              <Text style={{ color: colors.foreground, fontSize: 18, fontWeight: "700" }}>
-                Detalhes do Filtro
+              <Text style={{ color: colors.foreground, fontSize: 18, fontWeight: "700", flex: 1 }}>
+                Editar Filtro
               </Text>
-              <View style={{ width: 24 }} />
             </View>
 
-            <ScrollView showsVerticalScrollIndicator={false}>
+            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 20 }}>
               {selectedFilter && (
                 <View>
                   {/* Nome do Filtro */}
-                  <View
-                    style={{
-                      backgroundColor: colors.surface,
-                      borderRadius: 12,
-                      padding: 16,
-                      marginBottom: 20,
-                    }}
-                  >
+                  <View className="mb-6">
                     <Text style={{ color: colors.muted, fontSize: 12, fontWeight: "600", marginBottom: 8 }}>
                       NOME DO FILTRO
                     </Text>
-                    {isEditingName ? (
-                      <View style={{ flexDirection: "row", gap: 8, alignItems: "center" }}>
-                        <TextInput
-                          style={{
-                            flex: 1,
-                            backgroundColor: colors.background,
-                            borderColor: colors.border,
-                            borderWidth: 1,
-                            borderRadius: 8,
-                            color: colors.foreground,
-                            paddingHorizontal: 12,
-                            paddingVertical: 8,
-                            fontSize: 16,
-                          }}
-                          value={editingName}
-                          onChangeText={setEditingName}
-                        />
-                        <TouchableOpacity
-                          onPress={updateFilterName}
-                          style={{
-                            backgroundColor: colors.primary,
-                            borderRadius: 8,
-                            paddingHorizontal: 12,
-                            paddingVertical: 8,
-                          }}
-                        >
-                          <IconSymbol name="checkmark" size={20} color="#FFFFFF" />
-                        </TouchableOpacity>
-                      </View>
-                    ) : (
-                      <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
-                        <Text style={{ color: colors.foreground, fontSize: 16, fontWeight: "600" }}>
-                          {selectedFilter.name}
-                        </Text>
-                        <TouchableOpacity onPress={() => setIsEditingName(true)}>
-                          <IconSymbol name="pencil" size={20} color={colors.primary} />
-                        </TouchableOpacity>
-                      </View>
-                    )}
+                    <TextInput
+                      style={{
+                        backgroundColor: colors.surface,
+                        borderColor: colors.border,
+                        borderWidth: 1,
+                        borderRadius: 8,
+                        color: colors.foreground,
+                        paddingHorizontal: 12,
+                        paddingVertical: 12,
+                        fontSize: 16,
+                      }}
+                      value={editingName}
+                      onChangeText={setEditingName}
+                      placeholder="Nome do filtro"
+                      placeholderTextColor={colors.muted}
+                    />
                   </View>
 
-                  {/* Informações do Filtro */}
-                  <View
-                    style={{
-                      backgroundColor: colors.surface,
-                      borderRadius: 12,
-                      padding: 16,
-                      marginBottom: 20,
-                    }}
-                  >
-                    <Text style={{ color: colors.muted, fontSize: 12, fontWeight: "600", marginBottom: 12 }}>
-                      FILTROS APLICADOS
-                    </Text>
-                    {selectedFilter.filters.teor && (
-                      <View style={{ marginBottom: 8 }}>
-                        <Text style={{ color: colors.muted, fontSize: 12 }}>Teor:</Text>
-                        <Text style={{ color: colors.foreground, fontSize: 14 }}>
-                          {selectedFilter.filters.teor}
-                        </Text>
-                      </View>
-                    )}
-                    {selectedFilter.filters.numeroProcesso && (
-                      <View style={{ marginBottom: 8 }}>
-                        <Text style={{ color: colors.muted, fontSize: 12 }}>Nº Processo:</Text>
-                        <Text style={{ color: colors.foreground, fontSize: 14 }}>
-                          {selectedFilter.filters.numeroProcesso}
-                        </Text>
-                      </View>
-                    )}
-                    {selectedFilter.filters.nomeParte && (
-                      <View style={{ marginBottom: 8 }}>
-                        <Text style={{ color: colors.muted, fontSize: 12 }}>Parte:</Text>
-                        <Text style={{ color: colors.foreground, fontSize: 14 }}>
-                          {selectedFilter.filters.nomeParte}
-                        </Text>
-                      </View>
-                    )}
-                    {selectedFilter.filters.nomeAdvogado && (
-                      <View style={{ marginBottom: 8 }}>
-                        <Text style={{ color: colors.muted, fontSize: 12 }}>Advogado:</Text>
-                        <Text style={{ color: colors.foreground, fontSize: 14 }}>
-                          {selectedFilter.filters.nomeAdvogado}
-                        </Text>
-                      </View>
-                    )}
-                  </View>
+                  {/* Filtros Editáveis */}
+                  <Text style={{ color: colors.muted, fontSize: 12, fontWeight: "600", marginBottom: 12 }}>
+                    FILTROS APLICADOS
+                  </Text>
 
-                  {/* Botões de Ação */}
-                  <View style={{ gap: 12, marginBottom: 20 }}>
+                  {/* Teor */}
+                  <FilterInput
+                    label="Teor da comunicação"
+                    value={editingFilters.teor || ""}
+                    onChangeText={(text) => handleUpdateEditingFilter("teor", text)}
+                    placeholder="Digite o teor..."
+                    colors={colors}
+                  />
+
+                  {/* Instituições */}
+                  <FilterDropdown
+                    label="Instituições"
+                    options={OPTIONS.instituicoes}
+                    value={editingFilters.instituicoes || ""}
+                    onSelect={(value) => handleUpdateEditingFilter("instituicoes", value)}
+                    dropdownId="instituicoes"
+                    openDropdown={openDropdown}
+                    setOpenDropdown={setOpenDropdown}
+                    colors={colors}
+                  />
+
+                  {/* Órgãos */}
+                  <FilterDropdown
+                    label="Órgãos"
+                    options={OPTIONS.orgaos}
+                    value={editingFilters.orgaos || ""}
+                    onSelect={(value) => handleUpdateEditingFilter("orgaos", value)}
+                    dropdownId="orgaos"
+                    openDropdown={openDropdown}
+                    setOpenDropdown={setOpenDropdown}
+                    colors={colors}
+                  />
+
+                  {/* Meios */}
+                  <FilterDropdown
+                    label="Meios"
+                    options={OPTIONS.meios}
+                    value={editingFilters.meios || ""}
+                    onSelect={(value) => handleUpdateEditingFilter("meios", value)}
+                    dropdownId="meios"
+                    openDropdown={openDropdown}
+                    setOpenDropdown={setOpenDropdown}
+                    colors={colors}
+                  />
+
+                  {/* Número do Processo */}
+                  <FilterInput
+                    label="Nº de processo"
+                    value={editingFilters.numeroProcesso || ""}
+                    onChangeText={(text) => handleUpdateEditingFilter("numeroProcesso", text)}
+                    placeholder="Digite o número..."
+                    colors={colors}
+                  />
+
+                  {/* Nome da Parte */}
+                  <FilterInput
+                    label="Nome da parte"
+                    value={editingFilters.nomeParte || ""}
+                    onChangeText={(text) => handleUpdateEditingFilter("nomeParte", text)}
+                    placeholder="Digite o nome..."
+                    colors={colors}
+                  />
+
+                  {/* Nome do Advogado */}
+                  <FilterInput
+                    label="Nome do advogado"
+                    value={editingFilters.nomeAdvogado || ""}
+                    onChangeText={(text) => handleUpdateEditingFilter("nomeAdvogado", text)}
+                    placeholder="Digite o nome..."
+                    colors={colors}
+                  />
+
+                  {/* Nº da OAB */}
+                  <FilterInput
+                    label="Nº da OAB"
+                    value={editingFilters.numeroOAB || ""}
+                    onChangeText={(text) => handleUpdateEditingFilter("numeroOAB", text)}
+                    placeholder="Digite o número..."
+                    colors={colors}
+                  />
+
+                  {/* UF da OAB */}
+                  <FilterDropdown
+                    label="UF da OAB"
+                    options={OPTIONS.ufOAB}
+                    value={editingFilters.ufOAB || ""}
+                    onSelect={(value) => handleUpdateEditingFilter("ufOAB", value)}
+                    dropdownId="ufOAB"
+                    openDropdown={openDropdown}
+                    setOpenDropdown={setOpenDropdown}
+                    colors={colors}
+                  />
+
+                  {/* Botões de Ação no Final */}
+                  <View style={{ gap: 12, marginTop: 24 }}>
                     <TouchableOpacity
-                      onPress={() => loadFilter(selectedFilter)}
+                      onPress={updateFilter}
                       style={{
                         backgroundColor: colors.primary,
                         borderRadius: 8,
@@ -800,7 +830,7 @@ export default function FiltersScreen() {
                     >
                       <IconSymbol name="checkmark.circle" size={20} color="#FFFFFF" />
                       <Text style={{ color: "#FFFFFF", fontSize: 16, fontWeight: "600" }}>
-                        Carregar Filtro
+                        Salvar Filtro
                       </Text>
                     </TouchableOpacity>
 

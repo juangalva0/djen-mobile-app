@@ -322,3 +322,9 @@
 - [x] Redesenhar interface de filtros salvos para abrir modal ao clicar
 - [x] Mover botões de editar/deletar para dentro da modal
 - [x] Seguir padrões de design do app nos botões
+
+
+- [x] Redesenhar modal de detalhes do filtro para mostrar filtros editáveis
+- [x] Adicionar botão de voltar no topo da modal
+- [x] Habilitar botões "Salvar Filtro" e "Deletar Filtro" no final
+- [x] Permitir edição dos filtros aplicados dentro da modal
