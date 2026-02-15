@@ -2,7 +2,7 @@ import { ScrollView, Text, View, TextInput, TouchableOpacity, Alert, Modal, Flat
 import { ScreenContainer } from "@/components/screen-container";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useColors } from "@/hooks/use-colors";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 interface FilterState {
@@ -153,9 +153,13 @@ export default function FiltersScreen() {
         style={{
           backgroundColor: colors.surface,
           borderColor: colors.border,
+          borderWidth: 1,
+          borderRadius: 8,
           color: colors.foreground,
+          paddingHorizontal: 12,
+          paddingVertical: 12,
+          fontSize: 16,
         }}
-        className="border rounded-lg px-4 py-3 text-base"
         placeholder={placeholder}
         placeholderTextColor={colors.muted}
         value={value}

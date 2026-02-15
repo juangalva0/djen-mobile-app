@@ -267,3 +267,7 @@
 - [x] Atualizar splash screen
 - [x] Atualizar favicon e ícones
 - [x] Refazer logo para ficar parecida com a primeira versão
+
+
+## Bugs Reportados (Fase 8)
+- [x] Corrigir entrada de texto nos campos de filtros (texto vai uma letra por vez)
