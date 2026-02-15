@@ -293,3 +293,16 @@
 - [x] Atualizar andamento do processo com novas publicações
 - [x] Armazenar histórico de publicações por processo
 - [x] Sincronizar com banco de dados local (AsyncStorage/SQLite)
+
+
+## Implementações Solicitadas (Fase 11)
+
+### Tela de Detalhes do Processo
+- [x] Criar tela de detalhes do processo
+- [x] Exibir informações do processo (número, partes, tribunal, juiz)
+- [x] Mostrar timeline/histórico de publicações
+- [x] Ordenar publicações por data (mais recentes primeiro)
+- [x] Destacar informações importantes (datas, prazos, partes)
+- [x] Implementar navegação de volta
+- [x] Adicionar botão de favoritar processo
+- [x] Mostrar status do processo (ativo/concluído/suspenso)
