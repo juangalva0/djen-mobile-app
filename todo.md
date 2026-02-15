@@ -255,3 +255,5 @@
 - [x] Redesenhar layout da página de filtros conforme exemplo
 - [x] Adicionar funcionalidade de carregar filtros salvos
 - [x] Implementar exclusão de filtros salvos
+- [x] Implementar menus suspensos (dropdowns) para campos de seleção
+- [x] Remover seleção horizontal e usar dropdown para Instituições, Órgãos, Meios, UF OAB

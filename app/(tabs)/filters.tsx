@@ -1,4 +1,4 @@
-import { ScrollView, Text, View, TextInput, TouchableOpacity, Alert, FlatList } from "react-native";
+import { ScrollView, Text, View, TextInput, TouchableOpacity, Alert, Modal, FlatList } from "react-native";
 import { ScreenContainer } from "@/components/screen-container";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useColors } from "@/hooks/use-colors";
@@ -30,13 +30,20 @@ interface SavedFilter {
 const SAVED_FILTERS_KEY = "djen_saved_filters";
 const FILTER_COLORS = ["#FF6B6B", "#4ECDC4", "#45B7D1", "#FFA07A", "#98D8C8", "#F7DC6F", "#BB8FCE", "#85C1E2"];
 
+const OPTIONS = {
+  instituicoes: ["Todas as instituições", "Poder Judiciário", "Ministério Público", "Defensoria Pública"],
+  orgaos: ["Todos os órgãos", "Tribunal de Justiça", "Juizado Especial", "Vara Cível", "Vara Criminal"],
+  meios: ["Todos os meios", "Eletrônico", "Físico", "Híbrido"],
+  ufOAB: ["SP", "RJ", "MG", "BA", "SC", "RS", "PR", "PE", "CE", "GO", "DF", "Outros"],
+};
+
 export default function FiltersScreen() {
   const colors = useColors();
   const [filters, setFilters] = useState<FilterState>({
     teor: "",
-    instituicoes: "",
-    orgaos: "",
-    meios: "",
+    instituicoes: "Todas as instituições",
+    orgaos: "Todos os órgãos",
+    meios: "Todos os meios",
     startDate: "",
     endDate: "",
     numeroProcesso: "",
@@ -49,6 +56,7 @@ export default function FiltersScreen() {
   const [savedFilters, setSavedFilters] = useState<SavedFilter[]>([]);
   const [showSaveDialog, setShowSaveDialog] = useState(false);
   const [filterName, setFilterName] = useState("");
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
 
   useEffect(() => {
     loadSavedFilters();
@@ -110,9 +118,9 @@ export default function FiltersScreen() {
   const handleClearFilters = () => {
     setFilters({
       teor: "",
-      instituicoes: "",
-      orgaos: "",
-      meios: "",
+      instituicoes: "Todas as instituições",
+      orgaos: "Todos os órgãos",
+      meios: "Todos os meios",
       startDate: "",
       endDate: "",
       numeroProcesso: "",
@@ -156,55 +164,83 @@ export default function FiltersScreen() {
     </View>
   );
 
-  const FilterSelect = ({
+  const FilterDropdown = ({
     label,
     options,
     value,
     onSelect,
+    dropdownId,
   }: {
     label: string;
     options: string[];
     value: string;
     onSelect: (value: string) => void;
+    dropdownId: string;
   }) => (
     <View className="mb-4">
       <Text className="text-sm font-semibold text-foreground mb-2">{label}</Text>
-      <View
+      <TouchableOpacity
+        onPress={() => setOpenDropdown(openDropdown === dropdownId ? null : dropdownId)}
         style={{
           backgroundColor: colors.surface,
           borderColor: colors.border,
           borderWidth: 1,
           borderRadius: 8,
-          overflow: "hidden",
+          paddingHorizontal: 12,
+          paddingVertical: 12,
+          flexDirection: "row",
+          justifyContent: "space-between",
+          alignItems: "center",
         }}
       >
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} className="px-4 py-2">
-          {options.map((option) => (
+        <Text style={{ color: colors.foreground, fontSize: 16 }}>{value || label}</Text>
+        <IconSymbol
+          name={openDropdown === dropdownId ? "chevron.up" : "chevron.down"}
+          size={20}
+          color={colors.muted}
+        />
+      </TouchableOpacity>
+
+      {openDropdown === dropdownId && (
+        <View
+          style={{
+            backgroundColor: colors.surface,
+            borderColor: colors.border,
+            borderWidth: 1,
+            borderTopWidth: 0,
+            borderBottomLeftRadius: 8,
+            borderBottomRightRadius: 8,
+            marginTop: -1,
+            zIndex: 1000,
+          }}
+        >
+          {options.map((option, index) => (
             <TouchableOpacity
               key={option}
-              onPress={() => onSelect(option)}
+              onPress={() => {
+                onSelect(option);
+                setOpenDropdown(null);
+              }}
               style={{
-                backgroundColor: value === option ? colors.primary : colors.surface,
                 paddingHorizontal: 12,
-                paddingVertical: 8,
-                marginRight: 8,
-                borderRadius: 6,
-                marginVertical: 4,
+                paddingVertical: 12,
+                borderBottomColor: colors.border,
+                borderBottomWidth: index < options.length - 1 ? 1 : 0,
               }}
             >
               <Text
                 style={{
-                  color: value === option ? "#fff" : colors.foreground,
-                  fontSize: 14,
-                  fontWeight: "500",
+                  color: value === option ? colors.primary : colors.foreground,
+                  fontSize: 16,
+                  fontWeight: value === option ? "600" : "400",
                 }}
               >
                 {option}
               </Text>
             </TouchableOpacity>
           ))}
-        </ScrollView>
-      </View>
+        </View>
+      )}
     </View>
   );
 
@@ -275,27 +311,30 @@ export default function FiltersScreen() {
         />
 
         {/* Instituições */}
-        <FilterSelect
+        <FilterDropdown
           label="Todas as instituições"
-          options={["Todas as instituições", "Poder Judiciário", "Ministério Público", "Defensoria Pública"]}
+          options={OPTIONS.instituicoes}
           value={filters.instituicoes || ""}
           onSelect={(value) => setFilters({ ...filters, instituicoes: value })}
+          dropdownId="instituicoes"
         />
 
         {/* Órgãos */}
-        <FilterSelect
+        <FilterDropdown
           label="Todos os órgãos"
-          options={["Todos os órgãos", "Tribunal de Justiça", "Juizado Especial", "Vara Cível", "Vara Criminal"]}
+          options={OPTIONS.orgaos}
           value={filters.orgaos || ""}
           onSelect={(value) => setFilters({ ...filters, orgaos: value })}
+          dropdownId="orgaos"
         />
 
         {/* Meios */}
-        <FilterSelect
+        <FilterDropdown
           label="Todos os meios"
-          options={["Todos os meios", "Eletrônico", "Físico", "Híbrido"]}
+          options={OPTIONS.meios}
           value={filters.meios || ""}
           onSelect={(value) => setFilters({ ...filters, meios: value })}
+          dropdownId="meios"
         />
 
         {/* Datas */}
@@ -365,11 +404,12 @@ export default function FiltersScreen() {
         />
 
         {/* UF da OAB */}
-        <FilterSelect
+        <FilterDropdown
           label="UF da OAB"
-          options={["SP", "RJ", "MG", "BA", "SC", "RS", "PR", "PE", "CE", "GO", "DF", "Outros"]}
+          options={OPTIONS.ufOAB}
           value={filters.ufOAB || ""}
           onSelect={(value) => setFilters({ ...filters, ufOAB: value })}
+          dropdownId="ufOAB"
         />
 
         {/* Botões de Ação */}
