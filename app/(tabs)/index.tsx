@@ -1,4 +1,4 @@
-import { ScrollView, Text, View, TextInput, TouchableOpacity, ActivityIndicator, FlatList } from "react-native";
+import { ScrollView, Text, View, TextInput, TouchableOpacity, ActivityIndicator, FlatList, Alert } from "react-native";
 import { ScreenContainer } from "@/components/screen-container";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useColors } from "@/hooks/use-colors";
@@ -7,6 +7,7 @@ import { djenApi, type DJENPublication } from "@/lib/djen-api";
 import { searchHistoryStorage } from "@/lib/storage";
 import { useRouter, useFocusEffect } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { processManager } from "@/lib/process-manager";
 
 type ProcessResult = DJENPublication & {
   lastUpdate: string;
@@ -93,18 +94,34 @@ export default function SearchScreen() {
 
   const searchWithFilter = async (filterConfig: any): Promise<ProcessResult[]> => {
     try {
-      // Construir query baseado nos filtros
       const query = filterConfig.nomeParte || filterConfig.nomeAdvogado || filterConfig.teor || "";
       if (!query.trim()) {
         return [];
       }
 
       const publications = await djenApi.search({ query });
-      return publications.map((pub) => ({
+      const formattedResults = publications.map((pub) => ({
         ...pub,
         parts: pub.parties.join(" vs. "),
         lastUpdate: `${pub.date}`,
       }));
+
+      // Processar publicações para criar/atualizar processos
+      await processManager.processPublications(
+        publications.map((pub) => ({
+          id: pub.id,
+          number: pub.number,
+          processNumber: pub.number,
+          date: pub.date,
+          content: pub.summary || "",
+          type: "publication",
+          court: pub.court,
+          parties: pub.parties,
+          judge: pub.judges?.[0],
+        }))
+      );
+
+      return formattedResults;
     } catch (error) {
       console.error("Erro ao buscar com filtro:", error);
       return [];
@@ -121,6 +138,25 @@ export default function SearchScreen() {
         lastUpdate: `${pub.date}`,
       }));
       setResults(formattedResults);
+
+      // Processar publicações para criar/atualizar processos
+      const { created, updated } = await processManager.processPublications(
+        publications.map((pub) => ({
+          id: pub.id,
+          number: pub.number,
+          processNumber: pub.number,
+          date: pub.date,
+          content: pub.summary || "",
+          type: "publication",
+          court: pub.court,
+          parties: pub.parties,
+          judge: pub.judges?.[0],
+        }))
+      );
+
+      if (created > 0 || updated > 0) {
+        console.log(`Processadas publicações: ${created} novos processos, ${updated} atualizações`);
+      }
     } catch (error) {
       console.error("Erro ao carregar publicações:", error);
     } finally {
@@ -142,6 +178,25 @@ export default function SearchScreen() {
           lastUpdate: `${pub.date}`,
         }));
         setResults(formattedResults);
+
+        // Processar publicações para criar/atualizar processos
+        const { created, updated } = await processManager.processPublications(
+          publications.map((pub) => ({
+            id: pub.id,
+            number: pub.number,
+            processNumber: pub.number,
+            date: pub.date,
+            content: pub.summary || "",
+            type: "publication",
+            court: pub.court,
+            parties: pub.parties,
+            judge: pub.judges?.[0],
+          }))
+        );
+
+        if (created > 0 || updated > 0) {
+          console.log(`Processadas publicações: ${created} novos processos, ${updated} atualizações`);
+        }
       } catch (error) {
         console.error("Erro na busca:", error);
       } finally {

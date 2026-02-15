@@ -282,3 +282,14 @@
 - [x] Integrar com API DJEN para buscar resultados por filtro
 - [x] Adicionar indicador de quantidade de resultados por pasta
 - [x] Implementar navegação para abrir pasta e ver resultados
+
+
+## Implementações Solicitadas (Fase 10)
+
+### Gerenciamento de Processos e Publicações
+- [x] Criar estrutura de dados para armazenar processos com histórico de publicações
+- [x] Implementar detecção de novas publicações
+- [x] Criar novo processo quando publicação de novo processo é detectada
+- [x] Atualizar andamento do processo com novas publicações
+- [x] Armazenar histórico de publicações por processo
+- [x] Sincronizar com banco de dados local (AsyncStorage/SQLite)
