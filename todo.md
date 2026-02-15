@@ -266,3 +266,4 @@
 - [x] Atualizar app.config.ts com novo nome
 - [x] Atualizar splash screen
 - [x] Atualizar favicon e ícones
+- [x] Refazer logo para ficar parecida com a primeira versão
