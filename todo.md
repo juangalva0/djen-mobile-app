@@ -271,3 +271,14 @@
 
 ## Bugs Reportados (Fase 8)
 - [x] Corrigir entrada de texto nos campos de filtros (TextInput perde foco após cada letra)
+
+
+## Implementações Solicitadas (Fase 9)
+
+### Pastas de Filtros na Tela Inicial
+- [x] Criar componente de pasta para cada filtro salvo
+- [x] Exibir pastas na tela inicial (Home)
+- [x] Mostrar resultados de busca dentro de cada pasta
+- [x] Integrar com API DJEN para buscar resultados por filtro
+- [x] Adicionar indicador de quantidade de resultados por pasta
+- [x] Implementar navegação para abrir pasta e ver resultados
