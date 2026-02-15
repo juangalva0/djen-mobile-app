@@ -257,3 +257,12 @@
 - [x] Implementar exclusão de filtros salvos
 - [x] Implementar menus suspensos (dropdowns) para campos de seleção
 - [x] Remover seleção horizontal e usar dropdown para Instituições, Órgãos, Meios, UF OAB
+
+
+## Implementações Solicitadas (Fase 7)
+
+### Mudança de Nome e Logo
+- [x] Gerar nova logo para "Meu Djen"
+- [x] Atualizar app.config.ts com novo nome
+- [x] Atualizar splash screen
+- [x] Atualizar favicon e ícones

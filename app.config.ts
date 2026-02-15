@@ -28,11 +28,11 @@ const schemeFromBundleId = `manus${timestamp}`;
 
 const env = {
   // App branding - update these values directly (do not use env vars)
-  appName: "Djen",
+  appName: "Meu Djen",
   appSlug: "djen-mobile-app",
   // S3 URL of the app logo - set this to the URL returned by generate_image when creating custom logo
   // Leave empty to use the default icon from assets/images/icon.png
-  logoUrl: "https://private-us-east-1.manuscdn.com/sessionFile/LaKkR4CSA2arEf5VeXgbbN/sandbox/XvRYaFbwwHfJ0PXqdFYN3o-img-1_1770513591000_na1fn_aWNvbg.png?x-oss-process=image/resize,w_1920,h_1920/format,webp/quality,q_80&Expires=1798761600&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9wcml2YXRlLXVzLWVhc3QtMS5tYW51c2Nkbi5jb20vc2Vzc2lvbkZpbGUvTGFLa1I0Q1NBMmFyRWY1VmVYZ2JiTi9zYW5kYm94L1h2UllhRmJ3d0hmSjBQWHFkRllOM28taW1nLTFfMTc3MDUxMzU5MTAwMF9uYTFmbl9hV052YmcucG5nP3gtb3NzLXByb2Nlc3M9aW1hZ2UvcmVzaXplLHdfMTkyMCxoXzE5MjAvZm9ybWF0LHdlYnAvcXVhbGl0eSxxXzgwIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJBV1M6RXBvY2hUaW1lIjoxNzk4NzYxNjAwfX19XX0_&Key-Pair-Id=K2HSFNDJXOU9YS&Signature=TRfd83s9oXTHqzSIucSsPBZYyona9EsUwWh3U1Y6zoaS3fG8IMQM9tNoNS4BIRiNEmJ7WmjtyCmEHlf4BlTnvQyVqkrkHujOKDP9tLZqF6elNz75Z3fbghMeH~d0Pk4mJ1yMhMhEu6j218~G7rTdxt8w1bQTPK-b7Pdu3Th5yvdqhlCT90dXavEwNCU-jAjUzyygPvq9SVLW0d~UT6v2l~mPT4ruL83BG3bqeLpuvuT2tloJBT8o8PwXrl-H4XCeeDsUiqVoLrv8frjVDhm~eo633ZE~y3J3GhmGEmpVWAD6eA6EkXK9ZusCRDXD5jmDEwW8CZMq0dlstIUCQNC5FQ__",
+  logoUrl: "https://private-us-east-1.manuscdn.com/sessionFile/LaKkR4CSA2arEf5VeXgbbN/sandbox/ExCKnyapvYbxw62D1LZESX-img-1_1771114690000_na1fn_aWNvbg.png?x-oss-process=image/resize,w_1920,h_1920/format,webp/quality,q_80&Expires=1798761600&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9wcml2YXRlLXVzLWVhc3QtMS5tYW51c2Nkbi5jb20vc2Vzc2lvbkZpbGUvTGFLa1I0Q1NBMmFyRWY1VmVYZ2JiTi9zYW5kYm94L0V4Q0tueWFwdllieHc2MkQxTFpFU1gtaW1nLTFfMTc3MTExNDY5MDAwMF9uYTFmbl9hV052YmcucG5nP3gtb3NzLXByb2Nlc3M9aW1hZ2UvcmVzaXplLHdfMTkyMCxoXzE5MjAvZm9ybWF0LHdlYnAvcXVhbGl0eSxxXzgwIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJBV1M6RXBvY2hUaW1lIjoxNzk4NzYxNjAwfX19XX0_&Key-Pair-Id=K2HSFNDJXOU9YS&Signature=TlndVdtF90Q4UXY4OZ~xX-wuv6yWLqkl1OySfursU1f3wied74UrKfc-pL-Hs-duRoetnoq6aquMxGDL5dR~HS9MaE18W-Af5eOyUPejZTn-vAFl1QCKsc1GXeFp9LAg4XgP0mn1TizBPtT70w8yYOVQUTRdKiEOgRhdfdmaOGzYekGSdF0mOMqG8saC1Vsl0n5YXefYTJZoPRmcP3tSbmW3z~uICmYqsbOfE~z~-R~8vVJx-9UBL1YwGRb~IBqxWT46njsmEMhHu3pSuK~HzMKiZzvzQuit4eoBcXcOcFZlV7~jY2rjRnfy7J8plQeT2Wsz-byf8FSyCxDn6qPIXg__",
   scheme: schemeFromBundleId,
   iosBundleId: bundleId,
   androidPackage: bundleId,
