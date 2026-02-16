@@ -683,7 +683,7 @@ export default function FiltersScreen() {
                   alignItems: "center",
                 }}
               >
-                <IconSymbol name="chevron.left" size={24} color={colors.foreground} />
+                <IconSymbol name="chevron.left.forwardslash.chevron.right" size={24} color={colors.foreground} />
               </TouchableOpacity>
               <Text style={{ color: colors.foreground, fontSize: 18, fontWeight: "700", flex: 1 }}>
                 Editar Filtro

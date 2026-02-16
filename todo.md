@@ -338,3 +338,4 @@
 - [x] Revisar botão de voltar em editar notificações
 - [x] Padronizar botão de voltar em todas as telas
 - [x] Aplicar padrão em: edit-profile, appearance-settings, security-settings, legal-info, process-detail, publication-detail
+- [x] Corrigir botão de voltar em editar filtro (modal de filtros)
