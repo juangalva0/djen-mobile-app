@@ -6,6 +6,7 @@ import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import { registerOAuthRoutes } from "./oauth";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
+import { startSyncJob, stopSyncJob, runManualSync } from "../background-jobs";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise((resolve) => {
@@ -77,6 +78,27 @@ async function startServer() {
 
   server.listen(port, () => {
     console.log(`[api] server listening on port ${port}`);
+    // Iniciar background job de sincronizacao
+    startSyncJob();
+  });
+
+  // Graceful shutdown
+  process.on("SIGTERM", () => {
+    console.log("[api] SIGTERM recebido, encerrando...");
+    stopSyncJob();
+    server.close(() => {
+      console.log("[api] Servidor encerrado");
+      process.exit(0);
+    });
+  });
+
+  process.on("SIGINT", () => {
+    console.log("[api] SIGINT recebido, encerrando...");
+    stopSyncJob();
+    server.close(() => {
+      console.log("[api] Servidor encerrado");
+      process.exit(0);
+    });
   });
 }
 

@@ -1,6 +1,6 @@
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users } from "../drizzle/schema";
+import { InsertUser, users, savedFilters, syncHistory, SavedFilter, InsertSavedFilter, SyncHistory, InsertSyncHistory } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -89,4 +89,132 @@ export async function getUserByOpenId(openId: string) {
   return result.length > 0 ? result[0] : undefined;
 }
 
-// TODO: add feature queries here as your schema grows.
+// Funcoes para gerenciar filtros salvos
+
+export async function getSavedFilter(filterId: number): Promise<SavedFilter | undefined> {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get filter: database not available");
+    return undefined;
+  }
+
+  const result = await db
+    .select()
+    .from(savedFilters)
+    .where(eq(savedFilters.id, filterId))
+    .limit(1);
+
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function getAllSavedFilters(): Promise<SavedFilter[]> {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get filters: database not available");
+    return [];
+  }
+
+  return await db.select().from(savedFilters);
+}
+
+export async function getUserFilters(userId: number): Promise<SavedFilter[]> {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get user filters: database not available");
+    return [];
+  }
+
+  return await db.select().from(savedFilters).where(eq(savedFilters.userId, userId));
+}
+
+export async function createSavedFilter(data: InsertSavedFilter): Promise<SavedFilter | undefined> {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot create filter: database not available");
+    return undefined;
+  }
+
+  try {
+    await db.insert(savedFilters).values(data);
+    const result = await db
+      .select()
+      .from(savedFilters)
+      .where(eq(savedFilters.userId, data.userId))
+      .orderBy((t) => t.id)
+      .limit(1);
+    return result.length > 0 ? result[0] : undefined;
+  } catch (error) {
+    console.error("[Database] Failed to create filter:", error);
+    throw error;
+  }
+}
+
+export async function updateSavedFilter(
+  filterId: number,
+  data: Partial<InsertSavedFilter>
+): Promise<void> {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot update filter: database not available");
+    return;
+  }
+
+  try {
+    await db.update(savedFilters).set(data).where(eq(savedFilters.id, filterId));
+  } catch (error) {
+    console.error("[Database] Failed to update filter:", error);
+    throw error;
+  }
+}
+
+export async function deleteSavedFilter(filterId: number): Promise<void> {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot delete filter: database not available");
+    return;
+  }
+
+  try {
+    await db.delete(savedFilters).where(eq(savedFilters.id, filterId));
+  } catch (error) {
+    console.error("[Database] Failed to delete filter:", error);
+    throw error;
+  }
+}
+
+export async function recordSyncHistory(data: InsertSyncHistory): Promise<void> {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot record sync history: database not available");
+    return;
+  }
+
+  try {
+    await db.insert(syncHistory).values(data);
+  } catch (error) {
+    console.error("[Database] Failed to record sync history:", error);
+    throw error;
+  }
+}
+
+export async function getSyncHistory(filterId: number, limit: number = 10): Promise<SyncHistory[]> {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get sync history: database not available");
+    return [];
+  }
+
+  return await db
+    .select()
+    .from(syncHistory)
+    .where(eq(syncHistory.filterId, filterId))
+    .limit(limit);
+}
+
+export async function getFilterResults(filterId: number): Promise<any[]> {
+  return [];
+}
+
+export async function saveFilterResults(filterId: number, results: any[]): Promise<void> {
+  // Placeholder para salvar resultados
+}

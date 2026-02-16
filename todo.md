@@ -357,3 +357,54 @@
 - [ ] Implementar rate limiting para não sobrecarregar API
 - [ ] Adicionar logging de mensagens enviadas
 - [ ] Testar integração end-to-end
+
+
+## Implementações Solicitadas (Fase 13 - Twilio WhatsApp)
+
+### Integração Twilio WhatsApp
+- [x] Adicionar campo de número WhatsApp no cadastro (signup)
+- [x] Criar tela de gerenciamento WhatsApp no perfil
+- [x] Implementar validação de números WhatsApp
+- [x] Criar contexto de autenticação com suporte a WhatsApp
+- [x] Implementar serviço de validação e formatação de números
+- [x] Criar configuração do Twilio no servidor
+- [x] Implementar serviço de envio de mensagens via Twilio
+- [x] Adicionar testes unitários para validação de números (9 testes, todos passando)
+
+### Armazenamento de Filtros em PostgreSQL
+- [x] Criar schema de filtros salvos no banco de dados
+- [x] Criar schema de histórico de sincronização
+- [x] Implementar funções de CRUD para filtros
+- [x] Implementar funções de registro de histórico de sincronização
+- [x] Executar db:push para criar tabelas
+
+### Integração com API DJEN
+- [x] Criar serviço de integração com API DJEN
+- [x] Implementar busca por número de processo
+- [x] Implementar busca por nome de partes
+- [x] Implementar detecção de novos resultados
+- [x] Criar funções de formatação de datas para DJEN
+- [x] Adicionar testes para detecção de novos resultados (8 testes, todos passando)
+
+### Background Job de Sincronização
+- [x] Criar serviço de sincronização de filtros
+- [x] Implementar background job que roda a cada 10 minutos
+- [x] Adicionar inicialização do background job no servidor
+- [x] Implementar graceful shutdown
+- [x] Adicionar logging detalhado de sincronizações
+
+### Tela de Filtros Salvos
+- [x] Criar tela de gerenciamento de filtros salvos
+- [x] Implementar listagem de filtros com status
+- [x] Adicionar toggle para ativar/desativar notificações por filtro
+- [x] Implementar remoção de filtros
+- [x] Mostrar última sincronização e quantidade de novos resultados
+- [x] Adicionar link na tela de perfil
+
+### Próximos Passos
+- [ ] Configurar credenciais do Twilio (Account SID, Auth Token, Número WhatsApp)
+- [ ] Implementar rota Express para envio de mensagens WhatsApp
+- [ ] Testar envio real de notificações com Twilio
+- [ ] Integrar detecção de novos resultados com envio de notificações
+- [ ] Criar tela de histórico de notificações enviadas
+- [ ] Implementar retry automático para mensagens falhadas

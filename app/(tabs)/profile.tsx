@@ -129,6 +129,11 @@ export default function ProfileScreen() {
           title="Notificacoes"
           items={[
             {
+              label: "Filtros Salvos",
+              icon: "slider.horizontal.3",
+              onPress: () => router.push("/saved-filters"),
+            },
+            {
               label: "Configurar Notificacoes",
               icon: "bell.fill",
               onPress: () => router.push("/notification-settings"),
