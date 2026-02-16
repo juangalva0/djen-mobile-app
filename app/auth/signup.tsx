@@ -14,6 +14,7 @@ export default function SignupScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [whatsappNumber, setWhatsappNumber] = useState("");
   const [error, setError] = useState("");
 
   const handleSignup = async () => {
@@ -34,7 +35,7 @@ export default function SignupScreen() {
 
     try {
       setError("");
-      await signup(email, password, name);
+      await signup(email, password, name, whatsappNumber || undefined);
       router.replace("/(tabs)");
     } catch (err) {
       setError("Erro ao criar conta. Tente novamente.");
@@ -121,6 +122,25 @@ export default function SignupScreen() {
               onChangeText={setConfirmPassword}
               editable={!isLoading}
               secureTextEntry
+            />
+          </View>
+
+          <View>
+            <Text className="text-sm font-semibold text-foreground mb-2">WhatsApp (Opcional)</Text>
+            <Text className="text-xs text-muted mb-2">Numero com codigo do pais (ex: +55 11 98765-4321)</Text>
+            <TextInput
+              style={{
+                backgroundColor: colors.surface,
+                borderColor: colors.border,
+                color: colors.foreground,
+              }}
+              className="border rounded-lg px-4 py-3 text-base"
+              placeholder="+55 11 98765-4321"
+              placeholderTextColor={colors.muted}
+              value={whatsappNumber}
+              onChangeText={setWhatsappNumber}
+              editable={!isLoading}
+              keyboardType="phone-pad"
             />
           </View>
 

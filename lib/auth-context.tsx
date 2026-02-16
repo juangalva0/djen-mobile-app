@@ -12,6 +12,8 @@ export interface User {
   phone?: string;
   profession?: string;
   oabNumber?: string;
+  whatsappNumber?: string;
+  whatsappNotificationsEnabled?: boolean;
 }
 
 export interface AuthContextType {
@@ -19,7 +21,7 @@ export interface AuthContextType {
   isLoading: boolean;
   isSignedIn: boolean;
   login: (email: string, password: string) => Promise<void>;
-  signup: (email: string, password: string, name: string) => Promise<void>;
+  signup: (email: string, password: string, name: string, whatsappNumber?: string) => Promise<void>;
   logout: () => Promise<void>;
   upgradeToPremium: () => Promise<void>;
   updateProfile: (data: Partial<User>) => Promise<void>;
@@ -80,7 +82,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const signup = async (email: string, password: string, name: string) => {
+  const signup = async (email: string, password: string, name: string, whatsappNumber?: string) => {
     setIsLoading(true);
     try {
       // Simular chamada à API
@@ -92,6 +94,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         name,
         plan: "free",
         createdAt: new Date().toISOString(),
+        whatsappNumber,
+        whatsappNotificationsEnabled: !!whatsappNumber,
       };
 
       await AsyncStorage.setItem(USER_STORAGE_KEY, JSON.stringify(newUser));

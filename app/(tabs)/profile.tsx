@@ -126,12 +126,17 @@ export default function ProfileScreen() {
 
         {/* Notifications Settings */}
         <MenuSection
-          title="Notificações"
+          title="Notificacoes"
           items={[
             {
-              label: "Configurar Notificações",
+              label: "Configurar Notificacoes",
               icon: "bell.fill",
               onPress: () => router.push("/notification-settings"),
+            },
+            {
+              label: "WhatsApp",
+              icon: "message.fill",
+              onPress: () => router.push("/whatsapp-settings"),
             },
           ]}
         />

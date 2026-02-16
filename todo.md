@@ -339,3 +339,21 @@
 - [x] Padronizar botão de voltar em todas as telas
 - [x] Aplicar padrão em: edit-profile, appearance-settings, security-settings, legal-info, process-detail, publication-detail
 - [x] Corrigir botão de voltar em editar filtro (modal de filtros)
+
+
+## Implementações Solicitadas (Fase 15)
+
+### Integração Twilio WhatsApp para Notificações
+- [ ] Criar conta Twilio e obter credenciais (Account SID, Auth Token, Twilio WhatsApp Number)
+- [ ] Adicionar campo de número WhatsApp no cadastro/login
+- [ ] Salvar número WhatsApp no banco de dados (usuário)
+- [ ] Criar tela de gerenciamento WhatsApp no perfil
+- [ ] Implementar toggle para ativar/desativar notificações por WhatsApp
+- [ ] Permitir editar/alterar número WhatsApp no perfil
+- [ ] Implementar backend para enviar mensagens via Twilio API
+- [ ] Criar sistema de fila de notificações (queue)
+- [ ] Integrar com sistema de filtros para detectar novos resultados
+- [ ] Enviar notificação WhatsApp quando filtro retorna novos resultados
+- [ ] Implementar rate limiting para não sobrecarregar API
+- [ ] Adicionar logging de mensagens enviadas
+- [ ] Testar integração end-to-end
